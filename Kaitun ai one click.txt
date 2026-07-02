@@ -1,0 +1,802 @@
+-- ============================================================
+-- KAITUN FARM + NEXUS UI (THÊM CHỌN TEAM HẢI QUÂN)
+-- ============================================================
+-- Chức năng: Farm lấy đồ (Red Magic), Auto Team, Anti-3TN, Low Graphics
+-- UI: Nexus glassmorphism (4 stat cards: Level, Beli, Bounty, Frag)
+-- Thêm nút "Team" để chủ động chọn Marines
+-- ============================================================
+
+-- ===== CẤU HÌNH =====
+Config = {
+    Team = "Marines",  -- Mặc định Hải quân
+    FPS = 120,
+    Configuration = {
+        HopWhenIdle = true,
+        AutoHop = true,
+        AutoHopDelay = 5400,
+        FpsBoost = false,
+        blackscreen = false
+    },
+    Fruit = {
+        Sniper = true,
+        AutoRandom = true,
+        AutoStore = true,
+        Fruit = {"Kitsune-Kitsune", "Leopard-Leopard", "Dough-Dough", "Dragon-Dragon"}
+    },
+    Items = {
+        AutoFullyMelees = true,
+        Saber = true,
+        CursedDualKatana = true,
+        SoulGuitar = true,
+        RaceV2 = true,
+        RaceV3 = true,
+        SharkAnchor = true,
+        PullLever = true,
+    },
+    Mastery = {
+        SwordMastery = true,
+        MaxSwordMastery = 500,
+        GunMastery = true,
+        MaxGunMastery = 500
+    },
+    Settings = {
+        StayInSea2UntilHaveDarkFragments = true
+    }
+}
+
+
+-- Khởi tạo session timer ngay khi script chạy
+getgenv().KaitunSessionStart = os.time()
+
+-- ===== TỰ ĐỘNG CHỌN TEAM (HẢI QUÂN) =====
+task.spawn(function()
+    local p = game.Players.LocalPlayer
+    repeat task.wait() until p and p:FindFirstChild("PlayerGui")
+    local pGui = p.PlayerGui
+    local chooseTeam = pGui:FindFirstChild("Main (minimal)") and pGui["Main (minimal)"]:FindFirstChild("ChooseTeam")
+    if chooseTeam then
+        local attempts = 0
+        repeat
+            task.wait(0.5)
+            attempts = attempts + 1
+            if chooseTeam.Visible then
+                pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
+                    print("[Auto Team] Đã chọn Hải quân")
+                end)
+                break
+            end
+        until p.Team ~= nil or attempts >= 20
+    end
+end)
+
+-- ===== ANTI-LAG & LOW GRAPHICS =====
+task.spawn(function()
+    repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+    pcall(function()
+        local Lighting = game:GetService("Lighting")
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 100000
+        Lighting.Brightness = 1
+        Lighting.ClockTime = 12
+        local Terrain = workspace.Terrain
+        Terrain.WaterWaveSize, Terrain.WaterWaveSpeed, Terrain.WaterReflectance, Terrain.WaterTransparency = 0, 0, 0, 0
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Trail") then
+                obj.Enabled = false
+            end
+            if obj:IsA("BasePart") then
+                obj.Material = Enum.Material.Plastic
+                obj.Reflectance = 0
+                obj.CastShadow = false
+            end
+            if obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Texture = ""
+                obj.Transparency = 1
+            end
+        end
+        for _, effect in pairs(Lighting:GetDescendants()) do
+            if effect:IsA("PostEffect") or (effect:IsA("BlurEffect") and effect.Name ~= "CustomBlur") then
+                effect.Enabled = false
+            end
+        end
+        local player = game.Players.LocalPlayer
+        if player.PlayerScripts:FindFirstChild("NewIslandLOD") then player.PlayerScripts.NewIslandLOD:Destroy() end
+        if player.PlayerScripts:FindFirstChild("IslandLOD") then player.PlayerScripts.IslandLOD:Destroy() end
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local container = ReplicatedStorage:FindFirstChild("Container", true)
+        if container then
+            for _, name in ipairs({"AirDash", "LightningTP", "Damage", "Confetti", "LevelUp"}) do
+                local target = container:FindFirstChild(name, true)
+                if target then target:Destroy() end
+            end
+        end
+        if setfps then setfps(120) end
+    end)
+end)
+
+-- ===== ANTI-3TN =====
+local function kill3TN(o)
+    if o and o.Name == "3TN" then o:Destroy() end
+end
+local CoreGui = game:GetService("CoreGui")
+pcall(function() kill3TN(CoreGui:FindFirstChild("3TN")) end)
+game:GetService("RunService").RenderStepped:Connect(function() kill3TN(CoreGui:FindFirstChild("3TN")) end)
+CoreGui.ChildAdded:Connect(kill3TN)
+CoreGui.DescendantAdded:Connect(kill3TN)
+task.spawn(function() while true do task.wait(0.01) kill3TN(CoreGui:FindFirstChild("3TN")) end end)
+
+-- ===== LOAD MODULE FARM CHÍNH =====
+local farmLoaded = false
+task.spawn(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/sucvatthieunang/djtme/refs/heads/main/module"))()
+    end)
+    if success then
+        farmLoaded = true
+        print("[Kaitun] Farm module loaded")
+    else
+        warn("[Kaitun] Lỗi load farm: " .. tostring(err))
+    end
+end)
+
+-- ===== UI NEXUS (RÚT GỌN + THÊM NÚT TEAM) =====
+task.spawn(function()
+    repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+    local Players = game:GetService("Players")
+    local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local lp = Players.LocalPlayer
+
+    -- Colors
+    local Colors = {
+        Background = Color3.fromRGB(12,12,15),
+        Surface = Color3.fromRGB(28,28,36),
+        SurfaceLight = Color3.fromRGB(42,42,55),
+        Primary = Color3.fromRGB(170,130,255),
+        Text = Color3.fromRGB(245,245,250),
+        TextSecondary = Color3.fromRGB(170,170,190),
+        TextMuted = Color3.fromRGB(110,110,130),
+        Success = Color3.fromRGB(80,220,120),
+        Error = Color3.fromRGB(240,80,80),
+        Border = Color3.fromRGB(60,60,75),
+    }
+
+    -- Tạo ScreenGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "NexusUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.Parent = CoreGui
+
+    -- Blur
+    local blur = Instance.new("BlurEffect", game:GetService("Lighting"))
+    blur.Name = "NexusBlur"
+    blur.Size = 6
+
+    -- Main Frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.BackgroundColor3 = Colors.Background
+    mainFrame.BackgroundTransparency = 0.15
+    mainFrame.BorderSizePixel = 0
+    mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+    mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+    mainFrame.Size = UDim2.new(0, 550, 0, 380)
+    mainFrame.ClipsDescendants = true
+    mainFrame.Parent = screenGui
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0,10)
+    corner.Parent = mainFrame
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Colors.Border
+    stroke.Thickness = 1
+    stroke.Parent = mainFrame
+
+    -- Drag handle
+    local dragHandle = Instance.new("Frame")
+    dragHandle.BackgroundColor3 = Colors.Surface
+    dragHandle.BackgroundTransparency = 0.8
+    dragHandle.BorderSizePixel = 0
+    dragHandle.Position = UDim2.new(0,180,0,0)
+    dragHandle.Size = UDim2.new(1,-180,0,40)
+    dragHandle.ZIndex = 100
+    dragHandle.Parent = mainFrame
+    local indicator = Instance.new("Frame")
+    indicator.BackgroundColor3 = Color3.fromRGB(160,160,180)
+    indicator.BorderSizePixel = 0
+    indicator.AnchorPoint = Vector2.new(0.5,0.5)
+    indicator.Position = UDim2.new(0.5,-30,0.5,0)
+    indicator.Size = UDim2.new(0,50,0,5)
+    indicator.Parent = dragHandle
+    local indCorner = Instance.new("UICorner")
+    indCorner.CornerRadius = UDim.new(0,3)
+    indCorner.Parent = indicator
+
+    -- Minimize button
+    local minBtn = Instance.new("TextButton")
+    minBtn.BackgroundTransparency = 1
+    minBtn.Position = UDim2.new(1,-35,0.5,-10)
+    minBtn.Size = UDim2.new(0,20,0,20)
+    minBtn.Text = "—"
+    minBtn.TextColor3 = Colors.TextMuted
+    minBtn.TextSize = 16
+    minBtn.Font = Enum.Font.GothamBold
+    minBtn.ZIndex = 101
+    minBtn.Parent = dragHandle
+-- ===== NÚT TOGGLE ON/OFF (ICON ẢNH) =====
+local toggleBtn = Instance.new("ImageButton")
+toggleBtn.BackgroundTransparency = 1
+toggleBtn.Position = UDim2.new(1,-56,0.5,-10)
+toggleBtn.Size = UDim2.new(0,20,0,20)
+toggleBtn.Image = "rbxassetid://105304056374139"
+toggleBtn.ZIndex = 101
+toggleBtn.Parent = dragHandle
+
+local uiVisible = true
+local floatingToggle = nil
+
+local function createFloatingToggle()
+    if floatingToggle and floatingToggle.Parent then return end
+    floatingToggle = Instance.new("ImageButton")
+    floatingToggle.BackgroundColor3 = Color3.fromRGB(170,130,255)
+    floatingToggle.BackgroundTransparency = 0.2
+    floatingToggle.BorderSizePixel = 0
+    floatingToggle.AnchorPoint = Vector2.new(0,0.5)
+    floatingToggle.Position = UDim2.new(0,8,0.5,0)
+    floatingToggle.Size = UDim2.new(0,42,0,42)
+    floatingToggle.Image = "rbxassetid://105304056374139"
+    floatingToggle.AutoButtonColor = false
+    floatingToggle.ZIndex = 999
+    floatingToggle.Parent = screenGui
+    local floatCorner = Instance.new("UICorner")
+    floatCorner.CornerRadius = UDim.new(1,0)
+    floatCorner.Parent = floatingToggle
+    local floatStroke = Instance.new("UIStroke")
+    floatStroke.Color = Color3.fromRGB(80,80,100)
+    floatStroke.Thickness = 1.5
+    floatStroke.Parent = floatingToggle
+
+    local draggingFloat = false
+    local dragStartFloat, startPosFloat
+    floatingToggle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingFloat = true
+            dragStartFloat = input.Position
+            startPosFloat = floatingToggle.Position
+        end
+    end)
+    floatingToggle.InputEnded:Connect(function() draggingFloat = false end)
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingFloat and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStartFloat
+            floatingToggle.Position = UDim2.new(startPosFloat.X.Scale, startPosFloat.X.Offset + delta.X,
+                startPosFloat.Y.Scale, startPosFloat.Y.Offset + delta.Y)
+        end
+    end)
+
+    floatingToggle.MouseButton1Click:Connect(function()
+        uiVisible = true
+        mainFrame.Visible = true
+        blur.Size = 6
+        toggleBtn.Image = "rbxassetid://105304056374139"
+        floatingToggle:Destroy()
+        floatingToggle = nil
+    end)
+end
+
+toggleBtn.MouseButton1Click:Connect(function()
+    uiVisible = not uiVisible
+    if uiVisible then
+        mainFrame.Visible = true
+        blur.Size = 6
+        toggleBtn.Image = "rbxassetid://105304056374139"
+        if floatingToggle then floatingToggle:Destroy(); floatingToggle = nil end
+    else
+        mainFrame.Visible = false
+        blur.Size = 0
+        toggleBtn.Image = ""  -- Nếu có ảnh tắt, thay ID vào đây
+        createFloatingToggle()
+    end
+end)
+-- ===== KẾT THÚC TOGGLE =====
+    local minimized = false
+    minBtn.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        if minimized then
+            mainFrame.Position = UDim2.new(-0.5,0,0.5,0)
+            blur.Size = 0
+        else
+            mainFrame.Visible = true
+            mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+            blur.Size = 6
+        end
+    end)
+
+    -- Left Panel (Profile)
+    local leftPanel = Instance.new("Frame")
+    leftPanel.BackgroundColor3 = Colors.Surface
+    leftPanel.BackgroundTransparency = 0.3
+    leftPanel.BorderSizePixel = 0
+    leftPanel.Position = UDim2.new(0,0,0,0)
+    leftPanel.Size = UDim2.new(0,180,1,0)
+    leftPanel.ClipsDescendants = true
+    leftPanel.Parent = mainFrame
+    local leftCorner = Instance.new("UICorner")
+    leftCorner.CornerRadius = UDim.new(0,10)
+    leftCorner.Parent = leftPanel
+
+    local profileContainer = Instance.new("Frame")
+    profileContainer.BackgroundTransparency = 1
+    profileContainer.Position = UDim2.new(0,12,0,12)
+    profileContainer.Size = UDim2.new(1,-24,1,-24)
+    profileContainer.Parent = leftPanel
+
+    -- Avatar
+    local avatarFrame = Instance.new("Frame")
+    avatarFrame.BackgroundColor3 = Colors.Primary
+    avatarFrame.BackgroundTransparency = 0.8
+    avatarFrame.BorderSizePixel = 0
+    avatarFrame.AnchorPoint = Vector2.new(0.5,0)
+    avatarFrame.Position = UDim2.new(0.5,0,0,15)
+    avatarFrame.Size = UDim2.new(0,80,0,80)
+    avatarFrame.Parent = profileContainer
+    local avCorner = Instance.new("UICorner")
+    avCorner.CornerRadius = UDim.new(0,40)
+    avCorner.Parent = avatarFrame
+    local avatarImg = Instance.new("ImageLabel")
+    avatarImg.BackgroundTransparency = 1
+    avatarImg.Size = UDim2.new(1,0,1,0)
+    avatarImg.Image = "rbxthumb://type=AvatarHeadShot&id="..lp.UserId.."&w=180&h=180"
+    avatarImg.ScaleType = Enum.ScaleType.Fit
+    avatarImg.Parent = avatarFrame
+    local imgCorner = Instance.new("UICorner")
+    imgCorner.CornerRadius = UDim.new(0,40)
+    imgCorner.Parent = avatarImg
+
+    -- Username
+    local username = Instance.new("TextLabel")
+    username.BackgroundTransparency = 1
+    username.Position = UDim2.new(0,0,0,100)
+    username.Size = UDim2.new(1,0,0,22)
+    username.Font = Enum.Font.GothamSemibold
+    username.Text = lp.DisplayName
+    username.TextColor3 = Colors.Text
+    username.TextSize = 14
+    username.TextXAlignment = Enum.TextXAlignment.Center
+    username.Parent = profileContainer
+
+    -- Level, Race, Team
+    local levelLabel = Instance.new("TextLabel")
+    levelLabel.BackgroundTransparency = 1
+    levelLabel.Position = UDim2.new(0,0,0,128)
+    levelLabel.Size = UDim2.new(1,0,0,20)
+    levelLabel.Font = Enum.Font.Gotham
+    levelLabel.Text = "Level: --"
+    levelLabel.TextColor3 = Colors.TextSecondary
+    levelLabel.TextSize = 13
+    levelLabel.TextXAlignment = Enum.TextXAlignment.Center
+    levelLabel.Parent = profileContainer
+
+    local raceLabel = Instance.new("TextLabel")
+    raceLabel.BackgroundTransparency = 1
+    raceLabel.Position = UDim2.new(0,0,0,150)
+    raceLabel.Size = UDim2.new(1,0,0,20)
+    raceLabel.Font = Enum.Font.Gotham
+    raceLabel.Text = "Race: --"
+    raceLabel.TextColor3 = Colors.TextSecondary
+    raceLabel.TextSize = 13
+    raceLabel.TextXAlignment = Enum.TextXAlignment.Center
+    raceLabel.Parent = profileContainer
+
+    local teamLabel = Instance.new("TextLabel")
+    teamLabel.BackgroundTransparency = 1
+    teamLabel.Position = UDim2.new(0,0,0,172)
+    teamLabel.Size = UDim2.new(1,0,0,20)
+    teamLabel.Font = Enum.Font.Gotham
+    teamLabel.Text = "Team: Marines"
+    teamLabel.TextColor3 = Colors.TextSecondary
+    teamLabel.TextSize = 13
+    teamLabel.TextXAlignment = Enum.TextXAlignment.Center
+    teamLabel.Parent = profileContainer
+
+    -- Status
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Position = UDim2.new(0,0,1,-38)
+    statusLabel.Size = UDim2.new(1,0,0,14)
+    statusLabel.Font = Enum.Font.Gotham
+    statusLabel.Text = "Idle"
+    statusLabel.TextColor3 = Colors.Success
+    statusLabel.TextSize = 11
+    statusLabel.TextXAlignment = Enum.TextXAlignment.Center
+    statusLabel.Parent = profileContainer
+
+    -- Credits
+    local credits = Instance.new("TextLabel")
+    credits.BackgroundTransparency = 1
+    credits.Position = UDim2.new(0,0,1,-18)
+    credits.Size = UDim2.new(1,0,0,12)
+    credits.Font = Enum.Font.Gotham
+    credits.Text = "Nexus UI + Kaitun Farm"
+    credits.TextColor3 = Colors.TextMuted
+    credits.TextSize = 9
+    credits.TextTransparency = 0.7
+    credits.TextXAlignment = Enum.TextXAlignment.Center
+    credits.Parent = profileContainer
+
+    -- Right Panel (Dashboard)
+    local rightPanel = Instance.new("Frame")
+    rightPanel.BackgroundTransparency = 1
+    rightPanel.Position = UDim2.new(0,180,0,0)
+    rightPanel.Size = UDim2.new(1,-180,1,0)
+    rightPanel.Parent = mainFrame
+
+    local p = 12
+    local gap = 8
+
+    -- Header
+    local header = Instance.new("TextLabel")
+    header.BackgroundTransparency = 1
+    header.Position = UDim2.new(0,p,0,p)
+    header.Size = UDim2.new(1,-p*2,0,24)
+    header.Font = Enum.Font.GothamBold
+    header.Text = "Kaitun Farm"
+    header.TextColor3 = Colors.Text
+    header.TextSize = 18
+    header.TextXAlignment = Enum.TextXAlignment.Left
+    header.Parent = rightPanel
+
+    -- Session timer
+    local sessionLabel = Instance.new("TextLabel")
+    sessionLabel.BackgroundTransparency = 1
+    sessionLabel.Position = UDim2.new(0,p,0,p+26)
+    sessionLabel.Size = UDim2.new(0.5,-p,0,16)
+    sessionLabel.Font = Enum.Font.Gotham
+    sessionLabel.Text = "Session: 00:00:00"
+    sessionLabel.TextColor3 = Colors.TextSecondary
+    sessionLabel.TextSize = 13
+    sessionLabel.TextXAlignment = Enum.TextXAlignment.Left
+    sessionLabel.Parent = rightPanel
+
+    -- Stat cards (2x2)
+    local statsContainer = Instance.new("Frame")
+    statsContainer.BackgroundTransparency = 1
+    statsContainer.Position = UDim2.new(0,p,0,p+52)
+    statsContainer.Size = UDim2.new(1,-p*2,0,110)
+    statsContainer.Parent = rightPanel
+
+    local function createCard(label, value, pos, icon, accent)
+        local card = Instance.new("Frame")
+        card.BackgroundColor3 = Colors.SurfaceLight
+        card.BackgroundTransparency = 0.2
+        card.BorderSizePixel = 0
+        card.Position = pos
+        card.Size = UDim2.new(0.48,0,0,60)
+        card.Parent = statsContainer
+        local cCorner = Instance.new("UICorner")
+        cCorner.CornerRadius = UDim.new(0,8)
+        cCorner.Parent = card
+        local iconLabel = Instance.new("TextLabel")
+        iconLabel.BackgroundTransparency = 1
+        iconLabel.Position = UDim2.new(0,10,0,8)
+        iconLabel.Size = UDim2.new(0,16,0,14)
+        iconLabel.Font = Enum.Font.GothamBold
+        iconLabel.Text = icon or ""
+        iconLabel.TextColor3 = accent or Colors.Primary
+        iconLabel.TextSize = 12
+        iconLabel.TextXAlignment = Enum.TextXAlignment.Left
+        iconLabel.Parent = card
+        local lbl = Instance.new("TextLabel")
+        lbl.BackgroundTransparency = 1
+        lbl.Position = UDim2.new(0, icon and 28 or 10,0,8)
+        lbl.Size = UDim2.new(1, -(icon and 38 or 20),0,14)
+        lbl.Font = Enum.Font.GothamSemibold
+        lbl.Text = label
+        lbl.TextColor3 = Colors.TextSecondary
+        lbl.TextSize = 11
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Parent = card
+        local val = Instance.new("TextLabel")
+        val.BackgroundTransparency = 1
+        val.Position = UDim2.new(0,10,0,26)
+        val.Size = UDim2.new(1,-20,0,20)
+        val.Font = Enum.Font.GothamBold
+        val.Text = value
+        val.TextColor3 = Colors.Text
+        val.TextSize = 16
+        val.TextXAlignment = Enum.TextXAlignment.Left
+        val.Parent = card
+        val.Name = "Value"
+        return card, val
+    end
+
+    local _, levelVal = createCard("Level", "0", UDim2.new(0,0,0,0), "Lv", Colors.Primary)
+    local _, beliVal = createCard("Beli", "0", UDim2.new(0.5,gap/2,0,0), "₿", Color3.fromRGB(230,180,50))
+    local _, bountyVal = createCard("Bounty", "0", UDim2.new(0,0,0,58), "✪", Color3.fromRGB(240,80,80))
+    local _, fragVal = createCard("Frag", "0", UDim2.new(0.5,gap/2,0,58), "◆", Color3.fromRGB(120,200,120))
+
+    -- Feed (trạng thái farm)
+    local feedContainer = Instance.new("Frame")
+    feedContainer.BackgroundColor3 = Colors.SurfaceLight
+    feedContainer.BackgroundTransparency = 0.5
+    feedContainer.Position = UDim2.new(0,p,0,p+160)
+    feedContainer.Size = UDim2.new(1,-p*2,1,-(p+160+50))
+    feedContainer.ClipsDescendants = true
+    feedContainer.Parent = rightPanel
+    local fCorner = Instance.new("UICorner")
+    fCorner.CornerRadius = UDim.new(0,6)
+    fCorner.Parent = feedContainer
+    local feedHeader = Instance.new("TextLabel")
+    feedHeader.BackgroundTransparency = 1
+    feedHeader.Position = UDim2.new(0,8,0,4)
+    feedHeader.Size = UDim2.new(1,-16,0,16)
+    feedHeader.Font = Enum.Font.Gotham
+    feedHeader.Text = "Farm Status"
+    feedHeader.TextColor3 = Colors.TextMuted
+    feedHeader.TextSize = 11
+    feedHeader.TextXAlignment = Enum.TextXAlignment.Left
+    feedHeader.Parent = feedContainer
+    local feedScroll = Instance.new("ScrollingFrame")
+-- Farm Status Label
+local farmStatusLabel = Instance.new("TextLabel")
+farmStatusLabel.Name = "FarmStatusLabel"
+farmStatusLabel.BackgroundTransparency = 1
+farmStatusLabel.Position = UDim2.new(0, 8, 0, 22)
+farmStatusLabel.Size = UDim2.new(1, -16, 0, 40) -- đủ chỗ cho 2 dòng
+farmStatusLabel.Font = Enum.Font.Gotham
+farmStatusLabel.Text = "Melee: ⚪  Gun: ⚪  Sword: ⚪\nQuest: ⚪"
+farmStatusLabel.TextColor3 = Colors.Text
+farmStatusLabel.TextSize = 11
+farmStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+farmStatusLabel.TextWrapped = true
+farmStatusLabel.Parent = feedContainer
+    feedScroll.BackgroundTransparency = 1
+    feedScroll.Position = UDim2.new(0,4,0,22)
+    feedScroll.Size = UDim2.new(1,-8,1,-26)
+    feedScroll.CanvasSize = UDim2.new(0,0,0,0)
+    feedScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    feedScroll.ScrollBarThickness = 2
+    feedScroll.ScrollBarImageColor3 = Colors.TextMuted
+    feedScroll.Parent = feedContainer
+    local feedLayout = Instance.new("UIListLayout", feedScroll)
+    feedLayout.Padding = UDim.new(0,2)
+
+    -- Controls (4 nút: Restart, Team, Config, Stop)
+    local btnContainer = Instance.new("Frame")
+    btnContainer.BackgroundTransparency = 1
+    btnContainer.Position = UDim2.new(0,p,1,-p-36)
+    btnContainer.Size = UDim2.new(1,-p*2,0,36)
+    btnContainer.Parent = rightPanel
+
+    -- Restart
+    local hopBtn = Instance.new("TextButton")
+    hopBtn.BackgroundColor3 = Colors.SurfaceLight
+    hopBtn.BorderSizePixel = 0
+    hopBtn.Position = UDim2.new(0,0,0,0)
+    hopBtn.Size = UDim2.new(0.25, -gap*3/4, 1,0)
+    hopBtn.Font = Enum.Font.GothamSemibold
+    hopBtn.Text = "Restart"
+    hopBtn.TextColor3 = Colors.Text
+    hopBtn.TextSize = 13
+    hopBtn.AutoButtonColor = false
+    hopBtn.Parent = btnContainer
+    local hCorner = Instance.new("UICorner")
+    hCorner.CornerRadius = UDim.new(0,6)
+    hCorner.Parent = hopBtn
+
+    -- Team (thay cho Config)
+    local teamBtn = Instance.new("TextButton")
+    teamBtn.BackgroundColor3 = Colors.SurfaceLight
+    teamBtn.BorderSizePixel = 0
+    teamBtn.Position = UDim2.new(0.25, gap/4,0,0)
+    teamBtn.Size = UDim2.new(0.25, -gap*2/4, 1,0)
+    teamBtn.Font = Enum.Font.GothamSemibold
+    teamBtn.Text = "Team"
+    teamBtn.TextColor3 = Colors.Text
+    teamBtn.TextSize = 13
+    teamBtn.AutoButtonColor = false
+    teamBtn.Parent = btnContainer
+    local tCorner = Instance.new("UICorner")
+    tCorner.CornerRadius = UDim.new(0,6)
+    tCorner.Parent = teamBtn
+
+    -- Config (giữ nguyên nhưng có thể dùng sau)
+    local cfgBtn = Instance.new("TextButton")
+    cfgBtn.BackgroundColor3 = Colors.SurfaceLight
+    cfgBtn.BorderSizePixel = 0
+    cfgBtn.Position = UDim2.new(0.5, gap/4,0,0)
+    cfgBtn.Size = UDim2.new(0.25, -gap*2/4, 1,0)
+    cfgBtn.Font = Enum.Font.GothamSemibold
+    cfgBtn.Text = "Config"
+    cfgBtn.TextColor3 = Colors.Text
+    cfgBtn.TextSize = 13
+    cfgBtn.AutoButtonColor = false
+    cfgBtn.Parent = btnContainer
+    local cCorner = Instance.new("UICorner")
+    cCorner.CornerRadius = UDim.new(0,6)
+    cCorner.Parent = cfgBtn
+
+    -- Stop
+       local stopBtn = Instance.new("TextButton")
+    stopBtn.BackgroundColor3 = Colors.Error
+    stopBtn.BorderSizePixel = 0
+    stopBtn.Position = UDim2.new(0.75, gap/4,0,0)
+    stopBtn.Size = UDim2.new(0.25, -gap/4, 1,0)
+    stopBtn.Font = Enum.Font.GothamSemibold
+    stopBtn.Text = "Stop"
+    stopBtn.TextColor3 = Colors.Text
+    stopBtn.TextSize = 13
+    stopBtn.AutoButtonColor = false
+    stopBtn.Parent = btnContainer
+    local sCorner = Instance.new("UICorner")
+    sCorner.CornerRadius = UDim.new(0,6)
+    sCorner.Parent = stopBtn
+
+    local function addHover(btn, col)
+        btn.MouseEnter:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = col or Color3.fromRGB(60,60,80)}):Play()
+        end)
+        btn.MouseLeave:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = btn.BackgroundColor3}):Play()
+        end)
+    end
+    addHover(hopBtn, Color3.fromRGB(60,60,80))
+    addHover(teamBtn, Color3.fromRGB(60,60,80))
+    addHover(cfgBtn, Color3.fromRGB(60,60,80))
+    addHover(stopBtn, Color3.fromRGB(180,60,60))
+
+    -- Sự kiện nút Team: chọn Marines
+    teamBtn.MouseButton1Click:Connect(function()
+        pcall(function()
+            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
+            statusLabel.Text = "Team set to Marines ✓"
+            statusLabel.TextColor3 = Colors.Success
+            teamLabel.Text = "Team: Marines"
+            print("[Team] Đã chọn Hải quân")
+        end)
+    end)
+
+    hopBtn.MouseButton1Click:Connect(function()
+        task.spawn(function()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/sucvatthieunang/djtme/refs/heads/main/module"))()
+            end)
+            statusLabel.Text = "Restarted"
+            statusLabel.TextColor3 = Colors.Success
+        end)
+    end)
+
+    cfgBtn.MouseButton1Click:Connect(function()
+        -- Chức năng config có thể thêm sau
+        statusLabel.Text = "Config (coming soon)"
+        statusLabel.TextColor3 = Colors.TextSecondary
+    end)
+
+    stopBtn.MouseButton1Click:Connect(function()
+        getgenv().NexusShuttingDown = true
+        stopBtn.Text = "Stopped"
+        stopBtn.BackgroundColor3 = Color3.fromRGB(90,90,105)
+        statusLabel.Text = "Stopped"
+        statusLabel.TextColor3 = Colors.Error
+    end)
+
+    -- Draggable
+    local dragging = false
+    local dragStart, startPos
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+        end
+    end)
+    dragHandle.InputEnded:Connect(function() dragging = false end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- Hàm cập nhật thông tin
+    local function updateStats()
+        local p = game.Players.LocalPlayer
+        if not p then return end
+        local data = p:FindFirstChild("Data")
+        local leaderstats = p:FindFirstChild("leaderstats")
+        local level = 0
+        local beli = 0
+        local bounty = 0
+        local frag = 0
+        local race = "Unknown"
+
+        if data then
+            local lv = data:FindFirstChild("Level")
+            if lv then level = lv.Value end
+            local b = data:FindFirstChild("Beli")
+            if b then beli = b.Value end
+            local f = data:FindFirstChild("Fragments")
+            if f then frag = f.Value end
+            local r = data:FindFirstChild("Race")
+            if r then race = r.Value end
+        end
+        if leaderstats then
+            local bo = leaderstats:FindFirstChild("Bounty/Honor")
+            if bo then bounty = bo.Value end
+        end
+
+        levelVal.Text = tostring(level)
+        beliVal.Text = tostring(beli)
+        bountyVal.Text = tostring(bounty)
+        fragVal.Text = tostring(frag)
+        levelLabel.Text = "Level: " .. tostring(level)
+        raceLabel.Text = "Race: " .. race
+
+        -- Cập nhật session time
+        local sessionStart = getgenv().KaitunSessionStart or os.time()
+        local elapsed = os.time() - sessionStart
+        local h = math.floor(elapsed / 3600)
+        local m = math.floor((elapsed % 3600) / 60)
+        local s = elapsed % 60
+        sessionLabel.Text = string.format("Session: %02d:%02d:%02d", h, m, s)
+    end
+-- Vòng lặp cập nhật (có Farm Status)
+task.spawn(function()
+    while screenGui and screenGui.Parent do
+        task.wait(1)
+        pcall(function()
+            updateStats()
+
+            -- Farm Status (kiểm tra Backpack trực tiếp, không dùng GetInvMap)
+            if farmStatusLabel then
+                local backpack = game.Players.LocalPlayer.Backpack
+                local hasGodHuman = backpack and backpack:FindFirstChild("Godhuman") ~= nil
+                local hasSkullGuitar = backpack and backpack:FindFirstChild("Skull Guitar") ~= nil
+                local hasCursedDual = backpack and backpack:FindFirstChild("Cursed Dual Katana") ~= nil
+                local pullLever = false
+                pcall(function()
+                    pullLever = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("CheckTempleDoor") == true
+                end)
+
+                farmStatusLabel.Text = string.format(
+                    "Melee: %s  Gun: %s  Sword: %s\nQuest: %s",
+                    hasGodHuman and "✅" or "❌",
+                    hasSkullGuitar and "✅" or "❌",
+                    hasCursedDual and "✅" or "❌",
+                    pullLever and "✅" or "❌"
+                )
+            end
+
+            if getgenv().NexusShuttingDown then
+                statusLabel.Text = "Stopped"
+                statusLabel.TextColor3 = Colors.Error
+            else
+                statusLabel.Text = "Farming..."
+                statusLabel.TextColor3 = Colors.Success
+            end
+        end)
+    end
+end)
+    -- ===== THÊM ĐOẠN CODE TRÊN VÀO ĐÂY =====
+    task.spawn(function()
+        while screenGui and screenGui.Parent do
+            task.wait(1)
+            pcall(function()
+                if not getgenv().KaitunSessionStart then
+                    getgenv().KaitunSessionStart = os.time()
+                end
+                local elapsed = os.time() - getgenv().KaitunSessionStart
+                local h = math.floor(elapsed / 3600)
+                local m = math.floor((elapsed % 3600) / 60)
+                local s = elapsed % 60
+                if sessionLabel then
+                    sessionLabel.Text = string.format("Session: %02d:%02d:%02d", h, m, s)
+                end
+            end)
+        end
+    end)
+
+end) -- kết thúc task.spawn UI
