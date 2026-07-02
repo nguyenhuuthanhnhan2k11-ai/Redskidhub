@@ -1,0 +1,430 @@
+-- ============================================================
+-- NOVA X HUB + RED MAGIC ENGINE (ĐÃ BỎ FPS BOOSTER)
+-- ============================================================
+-- Chức năng: Auto Team, Anti-3TN, Farm Module (Red Magic)
+-- Đã loại bỏ hoàn toàn FPS Booster của Red Magic Hub
+-- ============================================================
+
+-- ===== CẤU HÌNH =====
+Config = {
+    Team = "Marines",
+    FPS = 120,                 -- Chỉ để hiển thị, không dùng boost
+    Configuration = {
+        HopWhenIdle = true,
+        AutoHop = true,
+        AutoHopDelay = 5400,
+        FpsBoost = false,       -- Đã tắt FPS Boost
+        blackscreen = false
+    },
+    Fruit = {
+        Sniper = true,
+        AutoRandom = true,
+        AutoStore = true,
+        Fruit = {"Kitsune-Kitsune", "Leopard-Leopard", "Dough-Dough", "Dragon-Dragon"}
+    },
+    Items = {
+        AutoFullyMelees = true,
+        Saber = true,
+        CursedDualKatana = true,
+        SoulGuitar = true,
+        RaceV2 = true,
+        RaceV3 = true,
+        SharkAnchor = true,
+        PullLever = true,
+    },
+    Mastery = {
+        SwordMastery = true,
+        MaxSwordMastery = 500,
+        GunMastery = true,
+        MaxGunMastery = 500
+    },
+    Settings = {
+        StayInSea2UntilHaveDarkFragments = true
+    }
+}
+
+-- ===== PHẦN 0: TỰ ĐỘNG CHỌN TEAM HẢI QUÂN =====
+task.spawn(function()
+    local p = game.Players.LocalPlayer
+    repeat task.wait() until p and p:FindFirstChild("PlayerGui")
+    local pGui = p.PlayerGui
+    local chooseTeam = pGui:FindFirstChild("Main (minimal)") and pGui["Main (minimal)"]:FindFirstChild("ChooseTeam")
+    if chooseTeam then
+        local attempts = 0
+        repeat
+            task.wait(0.5)
+            attempts = attempts + 1
+            if chooseTeam.Visible then
+                local success, err = pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
+                end)
+                if success then
+                    print("[Auto Team] Đã chọn Hải quân thành công!")
+                    break
+                else
+                    warn("[Auto Team] Lỗi: " .. tostring(err))
+                end
+            end
+        until p.Team ~= nil or attempts >= 20
+        if p.Team and p.Team.Name == "Marines" then
+            print("[Auto Team] Xác nhận: Đã ở phe Hải quân.")
+        else
+            warn("[Auto Team] Không thể chọn team, hãy thử thủ công.")
+        end
+    else
+        warn("[Auto Team] Không tìm thấy giao diện chọn team.")
+    end
+end)
+
+-- ===== PHẦN 1: TẠO UI NOVA X HUB =====
+local SetTextGlobal = nil
+
+local function novaskid()
+    local J = {'Task1', 'Task2', "Currencies", "Melees", 'LiveTime', 'DebugLine'}
+    local W = {Instances = {}}
+    local K = true
+    local a = false
+
+    repeat task.wait() until game.CoreGui
+
+    local mainGui = Instance.new('ScreenGui')
+    mainGui.Name = "Red Magic Hub"
+    mainGui.Parent = game:GetService('CoreGui')
+    mainGui.Enabled = true
+    mainGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    mainGui.IgnoreGuiInset = true
+
+    -- Tiêu đề
+    local titleLabel = Instance.new('TextLabel')
+    titleLabel.Name = 'NameHub'
+    titleLabel.Parent = mainGui
+    titleLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    titleLabel.Position = UDim2.new(0.5, 0, 0.3, 0)
+    titleLabel.Size = UDim2.new(1, 0, 0, 80)
+    titleLabel.BackgroundTransparency = 0.999
+    titleLabel.BackgroundColor3 = Color3.fromRGB(255,0,0)
+    titleLabel.BorderSizePixel = 0
+    titleLabel.Font = Enum.Font.FredokaOne
+    titleLabel.Text = "Red Magic hub"
+    titleLabel.TextColor3 = Color3.fromRGB(255,0,0)
+    titleLabel.TextSize = 50
+    local stroke1 = Instance.new("UIStroke", titleLabel)
+    stroke1.Color = Color3.fromRGB(0,0,0)
+    stroke1.Thickness = 1
+
+    -- Nút thu gọn
+    local toggleFrame = Instance.new('Frame')
+    toggleFrame.Name = 'ToggleContainer'
+    toggleFrame.Parent = mainGui
+    toggleFrame.AnchorPoint = Vector2.new(1,0)
+    toggleFrame.Position = UDim2.new(1,-20,0,20)
+    toggleFrame.Size = UDim2.new(0,50,0,50)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    toggleFrame.BackgroundTransparency = 0.2
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.ClipsDescendants = true
+    local corner = Instance.new('UICorner', toggleFrame)
+    corner.CornerRadius = UDim.new(1,0)
+    local stroke2 = Instance.new('UIStroke', toggleFrame)
+    stroke2.Color = Color3.fromRGB(9,255,248)
+    stroke2.Thickness = 2
+
+    local toggleBtn = Instance.new('ImageButton')
+    toggleBtn.Name = 'ToggleButton'
+    toggleBtn.Parent = toggleFrame
+    toggleBtn.AnchorPoint = Vector2.new(0.5,0.5)
+    toggleBtn.Position = UDim2.new(0.5,0,0.5,0)
+    toggleBtn.Size = UDim2.new(1,0,1,0)
+    toggleBtn.BackgroundTransparency = 1
+    toggleBtn.BorderSizePixel = 0
+
+    local toggleIcon = Instance.new('TextLabel')
+    toggleIcon.Name = "ToggleIcon"
+    toggleIcon.Parent = toggleFrame
+    toggleIcon.AnchorPoint = Vector2.new(0.5,0.5)
+    toggleIcon.Position = UDim2.new(0.5,0,0.5,0)
+    toggleIcon.Size = UDim2.new(0.7,0,0.7,0)
+    toggleIcon.BackgroundTransparency = 1
+    toggleIcon.BorderSizePixel = 0
+    toggleIcon.Font = Enum.Font.GothamBold
+    toggleIcon.Text = "HIDE"
+    toggleIcon.TextColor3 = Color3.fromRGB(255,255,255)
+    toggleIcon.TextSize = 24
+    toggleIcon.TextScaled = true
+
+    -- Hàm tạo dòng chữ thông tin
+    local function createTextLine(text, pos)
+        local lbl = Instance.new('TextLabel')
+        lbl.Name = "InfoLine"
+        lbl.Parent = mainGui
+        lbl.AnchorPoint = Vector2.new(0.5,0.5)
+        lbl.Position = pos
+        lbl.Size = UDim2.new(0,200,0,30)
+        lbl.BackgroundTransparency = 0.999
+        lbl.BackgroundColor3 = Color3.fromRGB(255,255,255)
+        lbl.BorderSizePixel = 0
+        lbl.Font = Enum.Font.FredokaOne
+        lbl.Text = text
+        lbl.TextColor3 = Color3.fromRGB(255,255,255)
+        lbl.TextSize = 13
+        lbl.RichText = true
+        local st = Instance.new('UIStroke', lbl)
+        st.Color = Color3.fromRGB(0,0,0)
+        st.Thickness = 1
+        return lbl
+    end
+
+    local mainText = createTextLine(" ", UDim2.new(0.5,0,0.4,0))
+    W.Instances.MainTextLabel = mainText
+    for idx, name in pairs(J) do
+        W.Instances[name] = createTextLine("...", UDim2.new(0.5,0,0.45 + (0.05 * idx),0))
+    end
+
+    -- Hệ thống làm mờ
+    local blurManager = {}
+    blurManager.blurFrame = nil
+    blurManager.blurEffect = nil
+    function blurManager:Create()
+        local frame = Instance.new('Frame')
+        frame.Name = "BlurFrame"
+        frame.Parent = mainGui
+        frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+        frame.BackgroundTransparency = 1
+        frame.BorderSizePixel = 0
+        frame.Size = UDim2.new(1,0,1,0)
+        frame.Position = UDim2.new(0,0,0,0)
+        frame.ZIndex = 0
+        self.blurFrame = frame
+        self.blurIntensity = 0
+        if not self.blurEffect then
+            local be = Instance.new("BlurEffect")
+            be.Name = 'CustomBlur'
+            be.Parent = game.Lighting
+            be.Enabled = true
+            be.Size = 0
+            self.blurEffect = be
+        end
+        return self
+    end
+    function blurManager:SetIntensity(intensity)
+        intensity = math.clamp(intensity, 0, 0.95)
+        self.blurIntensity = intensity
+        if self.blurFrame then
+            self.blurFrame.BackgroundTransparency = 1 - intensity
+        end
+        if self.blurEffect then
+            self.blurEffect.Size = intensity * 30
+        end
+    end
+    local blur = blurManager:Create()
+
+    function SetText(key, content)
+        task.spawn(function()
+            local lbl = W.Instances[key]
+            if not lbl then return end
+            if lbl.Text == content then return end
+            lbl.Text = content
+        end)
+    end
+
+    function ToggleUI(show)
+        a = (show == nil and not a) or show
+        local tweens = game:GetService("TweenService")
+        local info = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.InOut)
+        local allLabels = {titleLabel, mainText}
+        for _, v in pairs(W.Instances) do table.insert(allLabels, v) end
+
+        if a then
+            toggleIcon.Text = "HIDE"
+            for _, lbl in pairs(allLabels) do
+                local t = tweens:Create(lbl, info, {TextTransparency = 0})
+                t:Play()
+            end
+            blur:SetIntensity(0.4)
+        else
+            toggleIcon.Text = "OPEN"
+            for _, lbl in pairs(allLabels) do
+                local t = tweens:Create(lbl, info, {TextTransparency = 1})
+                t:Play()
+            end
+            blur:SetIntensity(0)
+        end
+        K = a
+    end
+
+    toggleBtn.MouseButton1Click:Connect(function() ToggleUI() end)
+
+    toggleBtn.MouseEnter:Connect(function()
+        local ts = game:GetService('TweenService')
+        ts:Create(toggleFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0,55,0,55)}):Play()
+        ts:Create(stroke2, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Color = Color3.fromRGB(0,255,255), Thickness = 3}):Play()
+    end)
+    toggleBtn.MouseLeave:Connect(function()
+        local ts = game:GetService('TweenService')
+        ts:Create(toggleFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0,50,0,50)}):Play()
+        ts:Create(stroke2, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Color = Color3.fromRGB(9,255,248), Thickness = 2}):Play()
+    end)
+
+    ToggleUI(true)
+
+    W.SetText = SetText
+    W.ToggleUI = ToggleUI
+    W.BlurManager = blur
+
+    _G.NovaUI = W
+    _G.SetText = SetText
+    SetTextGlobal = SetText
+
+    SetText('MainTextLabel', 'Kaitun blox fruit')
+    SetText('LiveTime', 'Đang khởi động...')
+end
+
+pcall(novaskid)
+
+-- ===== ANTI-LAG & LOW GRAPHICS (KHÔNG DÙNG FPS BOOSTER RED MAGIC) =====
+task.spawn(function()
+    repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+    pcall(function()
+        -- Tắt bóng, sương mù, hiệu ứng nước
+        local Lighting = game:GetService("Lighting")
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 100000
+        Lighting.Brightness = 1
+        Lighting.ClockTime = 12
+        local Terrain = workspace.Terrain
+        Terrain.WaterWaveSize, Terrain.WaterWaveSpeed, Terrain.WaterReflectance, Terrain.WaterTransparency = 0, 0, 0, 0
+
+        -- Xóa Particle, Fire, Smoke, Trail
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Trail") then
+                obj.Enabled = false
+            end
+            if obj:IsA("BasePart") then
+                obj.Material = Enum.Material.Plastic
+                obj.Reflectance = 0
+                obj.CastShadow = false
+            end
+            if obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Texture = ""
+                obj.Transparency = 1
+            end
+        end
+
+        -- Tắt PostEffect, Blur (giữ Blur của UI)
+        for _, effect in pairs(Lighting:GetDescendants()) do
+            if effect:IsA("PostEffect") or (effect:IsA("BlurEffect") and effect.Name ~= "CustomBlur") then
+                effect.Enabled = false
+            end
+        end
+
+        -- Xóa LOD scripts
+        local player = game.Players.LocalPlayer
+        if player.PlayerScripts:FindFirstChild("NewIslandLOD") then player.PlayerScripts.NewIslandLOD:Destroy() end
+        if player.PlayerScripts:FindFirstChild("IslandLOD") then player.PlayerScripts.IslandLOD:Destroy() end
+
+        -- Xóa effect trong ReplicatedStorage
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local container = ReplicatedStorage:FindFirstChild("Container", true)
+        if container then
+            for _, name in ipairs({"AirDash", "LightningTP", "Damage", "Confetti", "LevelUp"}) do
+                local target = container:FindFirstChild(name, true)
+                if target then target:Destroy() end
+            end
+        end
+
+        -- Giới hạn FPS (nếu executor hỗ trợ)
+        if setfps then setfps(Config.FPS or 120) end
+
+        print("[Anti-Lag] Đã áp dụng Low Graphics.")
+    end)
+end)
+-- ===== PHẦN 2: CHỨC NĂNG RED MAGIC (KHÔNG FPS BOOST) =====
+repeat task.wait() until _G.SetText ~= nil
+local SetText = _G.SetText
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Anti-3TN (giữ nguyên)
+local function kill3TN(o)
+    if o and o.Name == "3TN" then o:Destroy() end
+end
+pcall(function() kill3TN(CoreGui:FindFirstChild("3TN")) end)
+RunService.RenderStepped:Connect(function() kill3TN(CoreGui:FindFirstChild("3TN")) end)
+CoreGui.ChildAdded:Connect(kill3TN)
+CoreGui.DescendantAdded:Connect(kill3TN)
+task.spawn(function()
+    while true do
+        task.wait(0.01)
+        kill3TN(CoreGui:FindFirstChild("3TN"))
+    end
+end)
+
+-- Hàm lấy inventory
+local function GetInvMap()
+    local m = {}
+    local s, inv = pcall(function()
+        return ReplicatedStorage.Remotes.CommF_:InvokeServer("getInventory")
+    end)
+    if s and inv then
+        for _, v in pairs(inv) do
+            if typeof(v) == "table" and v.Name then
+                m[v.Name] = true
+            end
+        end
+    end
+    return m
+end
+
+-- Cập nhật thông tin lên UI Nova
+task.spawn(function()
+    local bId = 2125253113
+    local R, G, OK, X = utf8.char(0x1F534), utf8.char(0x1F7E2), utf8.char(0x2705), utf8.char(0x274C)
+    repeat task.wait() until LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level")
+    while task.wait(2) do
+        pcall(function()
+            local inv = GetInvMap()
+            local level = LocalPlayer.Data.Level.Value
+            local beli = LocalPlayer.Data.Beli.Value
+            local frag = LocalPlayer.Data.Fragments.Value
+            local race = LocalPlayer.Data.Race.Value
+            local hasB = false
+            pcall(function() hasB = game:GetService("BadgeService"):UserHasBadgeAsync(LocalPlayer.UserId, bId) end)
+            local thirdSea = hasB and OK or X
+            SetText('Currencies', string.format("Level: %d  |  Beli: %s  |  Frag: %s", level, beli, frag))
+            SetText('Melees', string.format("Race: %s  |  3rd Sea: %s", race, thirdSea))
+
+            local godHuman = "❌"
+            local success, rG = pcall(function()
+                return ReplicatedStorage.Remotes.CommF_:InvokeServer("BuyGodhuman", true)
+            end)
+            if success and (rG == 1 or rG == 2) then godHuman = "✅" end
+            local cursedDual = (inv["Cursed Dual Katana"] or LocalPlayer.Backpack:FindFirstChild("Cursed Dual Katana")) and "✅" or "❌"
+            local skullGuitar = (inv["Skull Guitar"] or LocalPlayer.Backpack:FindFirstChild("Skull Guitar")) and "✅" or "❌"
+            local pullLever = false
+            pcall(function() pullLever = ReplicatedStorage.Remotes.CommF_:InvokeServer("CheckTempleDoor") == true end)
+            pullLever = pullLever and "✅" or "❌"
+            SetText('DebugLine', string.format("GH: %s  CDK: %s  SG: %s  PL: %s", godHuman, cursedDual, skullGuitar, pullLever))
+            SetText('LiveTime', 'Online: ' .. os.date("%H:%M:%S"))
+        end)
+    end
+end)
+
+-- Load module farm chính của Red Magic
+task.spawn(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/sucvatthieunang/djtme/refs/heads/main/module"))()
+    end)
+    if not success then
+        SetText('MainTextLabel', 'Lỗi load farm: ' .. tostring(err))
+    else
+        SetText('MainTextLabel', 'Red Magic Farm Loaded!')
+    end
+end)
+
+print("[Nova+RedMagic] Đã khởi chạy! (Đã bỏ FPS Booster)")
