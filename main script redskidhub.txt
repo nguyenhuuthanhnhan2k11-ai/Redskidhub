@@ -1,0 +1,7 @@
+getgenv().Image = "https://i.postimg.cc/9wqf2Dg5/ten-anh.png" -- Nhớ dùng Liên kết trực tiếp (Direct Link) của ảnh nhé
+getgenv().WindowConfig = {
+    Title = "Red MagicOS Hub",
+    SubTitle = "blox fruit",
+    SaveFolder = "redmagicoshub.json"
+}
+loadstring(game:HttpGet("https://obfuscatorhub.onrender.com/api/i4v0ziff"))()
