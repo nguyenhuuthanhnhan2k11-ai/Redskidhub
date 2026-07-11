@@ -1,0 +1,426 @@
+-- ============================================================
+-- UI RED MAGIC HUB - TỐI GIẢN, MÀU ĐỎ ĐEN (BLOX FRUITS)
+-- ICON MENU TỪ ẢNH ID
+-- ============================================================
+
+task.spawn(function()
+    repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+    local Players = game:GetService("Players")
+    local UserInputService = game:GetService("UserInputService")
+    local TweenService = game:GetService("TweenService")
+    local RunService = game:GetService("RunService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local LP = Players.LocalPlayer
+
+    -- ===== FPS COUNTER =====
+    local fps = 0
+    local frameCount = 0
+    local lastFpsUpdate = tick()
+
+    RunService.Heartbeat:Connect(function()
+        frameCount = frameCount + 1
+        local now = tick()
+        if now - lastFpsUpdate >= 1 then
+            fps = frameCount
+            frameCount = 0
+            lastFpsUpdate = now
+        end
+    end)
+
+    -- ===== FUNCTIONS =====
+    local function getPlayerData()
+        local level, beli, frag, race = 0, 0, 0, "Unknown"
+        local data = LP:FindFirstChild("Data")
+        if data then
+            local lv = data:FindFirstChild("Level")
+            if lv then level = lv.Value end
+            local b = data:FindFirstChild("Beli")
+            if b then beli = b.Value end
+            local f = data:FindFirstChild("Fragments")
+            if f then frag = f.Value end
+            local r = data:FindFirstChild("Race")
+            if r then race = r.Value end
+        end
+        return {level = level, beli = beli, frag = frag, race = race}
+    end
+
+    local function hasItem(name)
+        if LP.Backpack and LP.Backpack:FindFirstChild(name) then return true end
+        if LP.Character and LP.Character:FindFirstChild(name) then return true end
+        local ok, inv = pcall(function()
+            return ReplicatedStorage.Remotes.CommF_:InvokeServer("getInventory")
+        end)
+        if ok and type(inv) == "table" then
+            for _, v in pairs(inv) do
+                if type(v) == "table" and v.Name == name then return true end
+            end
+        end
+        return false
+    end
+
+    local function formatMoney(n)
+        local s = tostring(math.floor(n or 0))
+        local out = s:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+        return out:gsub("^,", "")
+    end
+
+    local function formatTime(seconds)
+        seconds = math.floor(seconds or 0)
+        local h = math.floor(seconds / 3600)
+        local m = math.floor((seconds % 3600) / 60)
+        local s = seconds % 60
+        return string.format("%02d:%02d:%02d", h, m, s)
+    end
+
+    -- ===== UI =====
+    local CoreGui = game:GetService("CoreGui")
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "RedMagicHubUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.Parent = CoreGui
+
+    -- Màu sắc: nền đen, chữ đỏ
+    local colors = {
+        bg = Color3.fromRGB(8, 8, 12),
+        surface = Color3.fromRGB(18, 18, 25),
+        surfaceLight = Color3.fromRGB(30, 30, 40),
+        primary = Color3.fromRGB(255, 50, 50),
+        text = Color3.fromRGB(240, 240, 245),
+        textSec = Color3.fromRGB(170, 170, 190),
+        textMuted = Color3.fromRGB(100, 100, 120),
+        success = Color3.fromRGB(80, 220, 120),
+        error = Color3.fromRGB(240, 80, 80),
+        border = Color3.fromRGB(60, 60, 75),
+        gold = Color3.fromRGB(255, 200, 80),
+        red = Color3.fromRGB(255, 50, 50),
+    }
+
+    local ICON_ID = "rbxassetid://105304056374139"
+
+    -- Main Frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.BackgroundColor3 = colors.bg
+    mainFrame.BackgroundTransparency = 0.05
+    mainFrame.BorderSizePixel = 0
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    mainFrame.Size = UDim2.new(0, 340, 0, 220)
+    mainFrame.ClipsDescendants = true
+    mainFrame.Parent = screenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = mainFrame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = colors.border
+    stroke.Thickness = 1
+    stroke.Transparency = 0.5
+    stroke.Parent = mainFrame
+
+    local blur = Instance.new("BlurEffect", game:GetService("Lighting"))
+    blur.Name = "RedMagicBlur"
+    blur.Size = 24
+
+    -- Title Bar
+    local titleBar = Instance.new("Frame")
+    titleBar.BackgroundColor3 = colors.surface
+    titleBar.BackgroundTransparency = 0.8
+    titleBar.BorderSizePixel = 0
+    titleBar.Size = UDim2.new(1, 0, 0, 28)
+    titleBar.Parent = mainFrame
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 10)
+    titleCorner.Parent = titleBar
+
+    -- Title text (màu đỏ)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, 10, 0, 0)
+    titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Text = "RED MAGIC HUB"
+    titleLabel.TextColor3 = colors.red
+    titleLabel.TextSize = 13
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = titleBar
+
+    -- FPS label
+    local fpsLabel = Instance.new("TextLabel")
+    fpsLabel.BackgroundTransparency = 1
+    fpsLabel.Position = UDim2.new(0.5, 0, 0, 0)
+    fpsLabel.Size = UDim2.new(0.3, 0, 1, 0)
+    fpsLabel.Font = Enum.Font.GothamBold
+    fpsLabel.Text = "FPS: 0"
+    fpsLabel.TextColor3 = Color3.fromRGB(120, 220, 120)
+    fpsLabel.TextSize = 11
+    fpsLabel.TextXAlignment = Enum.TextXAlignment.Right
+    fpsLabel.Parent = titleBar
+
+    -- Toggle button (icon menu) trên title bar
+    local toggleBtn = Instance.new("ImageButton")
+    toggleBtn.BackgroundTransparency = 1
+    toggleBtn.Position = UDim2.new(1, -34, 0.5, -8)
+    toggleBtn.Size = UDim2.new(0, 18, 0, 18)
+    toggleBtn.Image = ICON_ID
+    toggleBtn.Parent = titleBar
+
+    -- Minimize button (giữ text)
+    local minBtn = Instance.new("TextButton")
+    minBtn.BackgroundTransparency = 1
+    minBtn.Position = UDim2.new(1, -56, 0.5, -8)
+    minBtn.Size = UDim2.new(0, 20, 0, 16)
+    minBtn.Font = Enum.Font.GothamBold
+    minBtn.Text = "—"
+    minBtn.TextColor3 = colors.textMuted
+    minBtn.TextSize = 14
+    minBtn.Parent = titleBar
+
+    -- Body
+    local body = Instance.new("Frame")
+    body.BackgroundTransparency = 1
+    body.Position = UDim2.new(0, 8, 0, 32)
+    body.Size = UDim2.new(1, -16, 1, -42)
+    body.Parent = mainFrame
+
+    -- Left panel
+    local leftPanel = Instance.new("Frame")
+    leftPanel.BackgroundTransparency = 1
+    leftPanel.Size = UDim2.new(0.4, -4, 1, 0)
+    leftPanel.Parent = body
+
+    local function createStatRow(label, defaultColor, yPos, isSmall)
+        local row = Instance.new("Frame")
+        row.BackgroundTransparency = 1
+        row.Size = UDim2.new(1, 0, 0, isSmall and 16 or 20)
+        row.Position = UDim2.new(0, 0, 0, yPos)
+        row.Parent = leftPanel
+
+        local lbl = Instance.new("TextLabel")
+        lbl.BackgroundTransparency = 1
+        lbl.Size = UDim2.new(0.45, 0, 1, 0)
+        lbl.Font = Enum.Font.GothamSemibold
+        lbl.Text = label .. ":"
+        lbl.TextColor3 = colors.textSec
+        lbl.TextSize = isSmall and 10 or 11
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Parent = row
+
+        local val = Instance.new("TextLabel")
+        val.BackgroundTransparency = 1
+        val.Position = UDim2.new(0.45, 0, 0, 0)
+        val.Size = UDim2.new(0.55, 0, 1, 0)
+        val.Font = Enum.Font.GothamBold
+        val.Text = "..."
+        val.TextColor3 = defaultColor or colors.text
+        val.TextSize = isSmall and 12 or 14
+        val.TextXAlignment = Enum.TextXAlignment.Right
+        val.Parent = row
+        val.Name = "Value"
+        return val
+    end
+
+    local levelVal = createStatRow("Level", colors.primary, 0, false)
+    local raceVal = createStatRow("Race", colors.textSec, 22, true)
+    local beliVal = createStatRow("Beli", colors.gold, 40, false)
+    local fragVal = createStatRow("Fragments", Color3.fromRGB(120, 220, 120), 60, true)
+
+    -- Right panel (items)
+    local rightPanel = Instance.new("Frame")
+    rightPanel.BackgroundTransparency = 1
+    rightPanel.Position = UDim2.new(0.4, 4, 0, 0)
+    rightPanel.Size = UDim2.new(0.6, -4, 1, 0)
+    rightPanel.Parent = body
+
+    local itemList = {
+        {name = "CDK", key = "Cursed Dual Katana"},
+        {name = "Valkyrie Helm", key = "Valkyrie Helm"},
+        {name = "Skull Guitar", key = "Skull Guitar"},
+        {name = "Mirror Fractal", key = "Mirror Fractal"},
+        {name = "Pull Lever", key = "Pull Lever"},
+    }
+
+    local itemRows = {}
+    for i, item in ipairs(itemList) do
+        local yPos = (i-1) * 18
+        local row = Instance.new("Frame")
+        row.BackgroundTransparency = 1
+        row.Size = UDim2.new(1, 0, 0, 16)
+        row.Position = UDim2.new(0, 0, 0, yPos)
+        row.Parent = rightPanel
+
+        local dot = Instance.new("TextLabel")
+        dot.BackgroundTransparency = 1
+        dot.Size = UDim2.new(0, 18, 1, 0)
+        dot.Font = Enum.Font.GothamBold
+        dot.Text = "●"
+        dot.TextColor3 = colors.error
+        dot.TextSize = 12
+        dot.TextXAlignment = Enum.TextXAlignment.Center
+        dot.Parent = row
+        dot.Name = "Dot"
+
+        local lbl = Instance.new("TextLabel")
+        lbl.BackgroundTransparency = 1
+        lbl.Position = UDim2.new(0, 20, 0, 0)
+        lbl.Size = UDim2.new(1, -20, 1, 0)
+        lbl.Font = Enum.Font.Gotham
+        lbl.Text = item.name
+        lbl.TextColor3 = colors.textSec
+        lbl.TextSize = 10
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Parent = row
+        lbl.Name = "Label"
+
+        itemRows[item.key] = {row = row, dot = dot}
+    end
+
+    -- Footer
+    local footer = Instance.new("Frame")
+    footer.BackgroundTransparency = 1
+    footer.Position = UDim2.new(0, 8, 1, -22)
+    footer.Size = UDim2.new(1, -16, 0, 18)
+    footer.Parent = mainFrame
+
+    local uptimeLabel = Instance.new("TextLabel")
+    uptimeLabel.BackgroundTransparency = 1
+    uptimeLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    uptimeLabel.Font = Enum.Font.Gotham
+    uptimeLabel.Text = "Uptime: 00:00:00"
+    uptimeLabel.TextColor3 = colors.textMuted
+    uptimeLabel.TextSize = 9
+    uptimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    uptimeLabel.Parent = footer
+
+    local statusFrame = Instance.new("Frame")
+    statusFrame.BackgroundColor3 = colors.surfaceLight
+    statusFrame.BackgroundTransparency = 0.5
+    statusFrame.BorderSizePixel = 0
+    statusFrame.Position = UDim2.new(0.5, 2, 0, 0)
+    statusFrame.Size = UDim2.new(0.5, -2, 1, 0)
+    statusFrame.Parent = footer
+    local statusCorner = Instance.new("UICorner")
+    statusCorner.CornerRadius = UDim.new(0, 4)
+    statusCorner.Parent = statusFrame
+
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Size = UDim2.new(1, -4, 1, 0)
+    statusLabel.Position = UDim2.new(0, 2, 0, 0)
+    statusLabel.Font = Enum.Font.GothamBold
+    statusLabel.Text = "● Online"
+    statusLabel.TextColor3 = colors.success
+    statusLabel.TextSize = 9
+    statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    statusLabel.Parent = statusFrame
+
+    -- Floating toggle (icon menu bên trái)
+    local floatingBtn = Instance.new("ImageButton")
+    floatingBtn.BackgroundColor3 = colors.red
+    floatingBtn.BackgroundTransparency = 0.25
+    floatingBtn.BorderSizePixel = 0
+    floatingBtn.AnchorPoint = Vector2.new(0, 0.5)
+    floatingBtn.Position = UDim2.new(0, 8, 0.5, 0)
+    floatingBtn.Size = UDim2.new(0, 34, 0, 34)
+    floatingBtn.Image = ICON_ID
+    floatingBtn.AutoButtonColor = false
+    floatingBtn.ZIndex = 999
+    floatingBtn.Parent = screenGui
+
+    local floatCorner = Instance.new("UICorner")
+    floatCorner.CornerRadius = UDim.new(1, 0)
+    floatCorner.Parent = floatingBtn
+    local floatStroke = Instance.new("UIStroke")
+    floatStroke.Color = colors.border
+    floatStroke.Thickness = 1
+    floatStroke.Parent = floatingBtn
+
+    -- State
+    local uiVisible = true
+    local minimized = false
+    local startTime = os.time()
+
+    -- Events
+    floatingBtn.MouseButton1Click:Connect(function()
+        uiVisible = not uiVisible
+        mainFrame.Visible = uiVisible
+        blur.Size = uiVisible and 24 or 0
+    end)
+
+    toggleBtn.MouseButton1Click:Connect(function()
+        uiVisible = not uiVisible
+        mainFrame.Visible = uiVisible
+        blur.Size = uiVisible and 24 or 0
+    end)
+
+    minBtn.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        if minimized then
+            mainFrame.Size = UDim2.new(0, 340, 0, 30)
+            body.Visible = false
+            footer.Visible = false
+            minBtn.Text = "+"
+        else
+            mainFrame.Size = UDim2.new(0, 340, 0, 220)
+            body.Visible = true
+            footer.Visible = true
+            minBtn.Text = "—"
+        end
+    end)
+
+    -- Drag
+    local dragging = false
+    local dragStart, startPos
+    titleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+        end
+    end)
+    titleBar.InputEnded:Connect(function() dragging = false end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                           startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- Update loop
+    task.spawn(function()
+        while screenGui and screenGui.Parent do
+            task.wait(0.5)
+            pcall(function()
+                fpsLabel.Text = "FPS: " .. tostring(fps)
+
+                local data = getPlayerData()
+                levelVal.Text = tostring(data.level)
+                raceVal.Text = data.race
+                beliVal.Text = formatMoney(data.beli)
+                fragVal.Text = tostring(data.frag)
+
+                for key, row in pairs(itemRows) do
+                    local has = hasItem(key)
+                    row.dot.TextColor3 = has and colors.success or colors.error
+                end
+
+                local elapsed = os.time() - startTime
+                uptimeLabel.Text = "Uptime: " .. formatTime(elapsed)
+
+                local farmState = getgenv().GAG2_FARM_STATE
+                if farmState and type(farmState) == "table" and farmState.running then
+                    statusLabel.Text = "● Farming"
+                    statusLabel.TextColor3 = colors.success
+                else
+                    statusLabel.Text = "● Online"
+                    statusLabel.TextColor3 = colors.success
+                end
+            end)
+        end
+    end)
+
+    print("[UI] Red Magic Hub loaded (đen - đỏ) + icon ID 105304056374139")
+end)
