@@ -1,0 +1,798 @@
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- ==================== SETTINGS ====================
+local Settings = {
+    StoreF_Save = true,     -- Auto store enabled by default
+    DesiredTeam = "Marines", -- Desired team to join
+}
+
+local function SaveSettings()
+    _G.SaveData = _G.SaveData or {}
+    _G.SaveData["StoreF_Save"] = Settings.StoreF_Save
+    _G.SaveData["DesiredTeam"] = Settings.DesiredTeam
+end
+
+-- ==================== SCRIPT CHÍNH ====================
+local function runMainScript()
+    print("DEATH FRUIT FINDER LOADED!")
+
+    local player = Players.LocalPlayer
+    local playerGui = player:FindFirstChild("PlayerGui")
+    
+    if not playerGui then
+        playerGui = Instance.new("ScreenGui")
+        playerGui.Parent = player
+    end
+
+    -----------------------
+    -- UI (DEATH THEME - TOP LEFT) - STATS ONLY
+    -----------------------
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "DeathFruitFinder"
+    screenGui.Parent = playerGui
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Parent = screenGui
+    mainFrame.Size = UDim2.new(0, 340, 0, 190)
+    mainFrame.Position = UDim2.new(0, 10, 0, 10)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    mainFrame.BackgroundTransparency = 0.15
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Parent = mainFrame
+    uiStroke.Thickness = 2
+    uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    uiStroke.Color = Color3.fromRGB(255, 0, 0)
+
+    local function createLabel(text, yPos, fontSize, color)
+        local label = Instance.new("TextLabel")
+        label.Parent = mainFrame
+        label.Size = UDim2.new(1, 0, 0, 30)
+        label.Position = UDim2.new(0, 0, yPos, 0)
+        label.BackgroundTransparency = 1
+        label.Text = text
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = fontSize
+        label.TextColor3 = color or Color3.fromRGB(255, 0, 0)
+        label.TextScaled = false
+        return label
+    end
+
+    -- Title
+    local title = createLabel("⚔ DEATH FRUIT FINDER", 0.02, 20, Color3.fromRGB(255, 0, 0))
+    
+    -- Status
+    local status = createLabel("🔍 Auto Searching...", 0.20, 15, Color3.fromRGB(255, 200, 200))
+    
+    -- Fruit Display
+    local fruitDisplay = createLabel("📦 Fruit: None", 0.38, 15, Color3.fromRGB(255, 100, 100))
+    
+    -- Team Status
+    local teamStatus = createLabel("👥 Team: " .. Settings.DesiredTeam, 0.56, 15, Color3.fromRGB(100, 200, 255))
+    
+    -- Auto Store Status
+    local storeStatus = createLabel("💾 Auto Store: ON", 0.74, 15, Color3.fromRGB(0, 255, 0))
+
+    local function Status(text)
+        status.Text = "🔍 " .. text
+    end
+
+    local function UpdateFruitDisplay(fruitName)
+        if fruitName then
+            fruitDisplay.Text = "📦 Fruit: " .. fruitName
+            fruitDisplay.TextColor3 = Color3.fromRGB(0, 255, 0)
+        else
+            fruitDisplay.Text = "📦 Fruit: None"
+            fruitDisplay.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end
+
+    local function UpdateTeamStatus(teamName)
+        if teamName then
+            teamStatus.Text = "👥 Team: " .. teamName
+            teamStatus.TextColor3 = Color3.fromRGB(100, 200, 255)
+        else
+            teamStatus.Text = "👥 Team: None"
+            teamStatus.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end
+
+    local function UpdateStoreStatus(enabled)
+        if enabled then
+            storeStatus.Text = "💾 Auto Store: ON"
+            storeStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
+        else
+            storeStatus.Text = "💾 Auto Store: OFF"
+            storeStatus.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end
+
+    -----------------------
+    -- GET COMMF FUNCTION
+    -----------------------
+    local function GetCommF()
+        if ReplicatedStorage:FindFirstChild("CommF_") then
+            return ReplicatedStorage:FindFirstChild("CommF_")
+        elseif ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+            return ReplicatedStorage.Remotes:FindFirstChild("CommF_")
+        end
+        return nil
+    end
+
+    -----------------------
+    -- STORE FRUIT FUNCTION
+    -----------------------
+    local function Store(tool)
+        if not tool or not tool:IsA("Tool") then return false end
+        
+        local eatRemote = tool:FindFirstChild("EatRemote", true)
+        if not eatRemote then return false end
+        
+        local success = false
+        pcall(function()
+            local commF = GetCommF()
+            if commF and commF:IsA("RemoteFunction") then
+                local originalName = eatRemote.Parent:GetAttribute("OriginalName")
+                if originalName then
+                    commF:InvokeServer("StoreFruit", originalName, tool)
+                    success = true
+                end
+            end
+        end)
+        
+        return success
+    end
+
+    -----------------------
+    -- BRING FRUIT FUNCTION
+    -----------------------
+    local function BringFruit(fruit)
+        if not fruit then return false end
+        
+        local character = player.Character
+        if not character then return false end
+        
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then return false end
+        
+        local handle = fruit:FindFirstChild("Handle")
+        if not handle or not handle:IsA("BasePart") then return false end
+        
+        if fruit.Parent ~= Workspace then return false end
+        
+        -- Check distance
+        local distance = (rootPart.Position - handle.Position).Magnitude
+        if distance > 60 then return false end
+        
+        local brought = false
+        
+        -- Method 1: Use remote events to bring fruit
+        pcall(function()
+            local bringRemote = ReplicatedStorage:FindFirstChild("BringFruit") or
+                               ReplicatedStorage:FindFirstChild("FruitBring") or
+                               ReplicatedStorage:FindFirstChild("GrabFruit") or
+                               ReplicatedStorage:FindFirstChild("CollectFruit")
+            
+            if bringRemote then
+                if bringRemote:IsA("RemoteEvent") then
+                    bringRemote:FireServer(fruit)
+                elseif bringRemote:IsA("RemoteFunction") then
+                    bringRemote:InvokeServer(fruit)
+                end
+                brought = true
+            end
+        end)
+        
+        -- Method 2: Use CommF_ to bring fruit
+        if not brought then
+            pcall(function()
+                local commF = GetCommF()
+                if commF and commF:IsA("RemoteFunction") then
+                    commF:InvokeServer("BringFruit", fruit)
+                    brought = true
+                end
+            end)
+        end
+        
+        -- Method 3: Move fruit to character position
+        if not brought then
+            pcall(function()
+                if distance < 40 then
+                    local newPos = rootPart.Position + Vector3.new(0, 1, 3)
+                    handle.Position = newPos
+                    
+                    if fruit:IsA("Model") and fruit.PrimaryPart then
+                        fruit:SetPrimaryPartCFrame(CFrame.new(newPos))
+                    end
+                    
+                    if fruit:IsA("Tool") then
+                        local humanoid = character:FindFirstChildOfClass("Humanoid")
+                        if humanoid then
+                            humanoid:EquipTool(fruit)
+                            task.wait(0.05)
+                            humanoid:UnequipTool(fruit)
+                        end
+                    end
+                    
+                    brought = true
+                end
+            end)
+        end
+        
+        -- Method 4: Use ClickDetector to grab
+        if not brought then
+            pcall(function()
+                local clickDetector = handle:FindFirstChildOfClass("ClickDetector")
+                if clickDetector then
+                    clickDetector:FireClick(character)
+                    brought = true
+                end
+            end)
+        end
+        
+        return brought
+    end
+
+    -----------------------
+    -- COLLECT FRUIT FUNCTION
+    -----------------------
+    local function CollectFruit(fruit)
+        if not fruit then return false end
+        
+        local character = player.Character
+        if not character then return false end
+        
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return false end
+        
+        local handle = fruit:FindFirstChild("Handle")
+        if not handle or not handle:IsA("BasePart") then return false end
+        
+        if fruit.Parent ~= Workspace then return false end
+        
+        local collected = false
+        
+        -- Method 1: Use ClickDetector
+        pcall(function()
+            local clickDetector = handle:FindFirstChildOfClass("ClickDetector")
+            if clickDetector then
+                clickDetector:FireClick(character)
+                collected = true
+            end
+        end)
+        
+        -- Method 2: Equip and unequip tool
+        if not collected then
+            pcall(function()
+                if fruit:IsA("Tool") then
+                    humanoid:EquipTool(fruit)
+                    task.wait(0.05)
+                    humanoid:UnequipTool(fruit)
+                    collected = true
+                elseif fruit:IsA("Model") then
+                    for _, child in ipairs(fruit:GetChildren()) do
+                        if child:IsA("Tool") then
+                            humanoid:EquipTool(child)
+                            task.wait(0.05)
+                            humanoid:UnequipTool(child)
+                            collected = true
+                            break
+                        end
+                    end
+                end
+            end)
+        end
+        
+        -- Method 3: Use collect remote
+        if not collected then
+            pcall(function()
+                local collectRemote = ReplicatedStorage:FindFirstChild("CollectFruit") or
+                                     ReplicatedStorage:FindFirstChild("FruitCollect") or
+                                     ReplicatedStorage:FindFirstChild("PickupFruit") or
+                                     ReplicatedStorage:FindFirstChild("GrabFruit")
+                
+                if collectRemote then
+                    if collectRemote:IsA("RemoteEvent") then
+                        collectRemote:FireServer(fruit)
+                    elseif collectRemote:IsA("RemoteFunction") then
+                        collectRemote:InvokeServer(fruit)
+                    end
+                    collected = true
+                end
+            end)
+        end
+        
+        -- Method 4: Use CommF_ to collect
+        if not collected then
+            pcall(function()
+                local commF = GetCommF()
+                if commF and commF:IsA("RemoteFunction") then
+                    commF:InvokeServer("CollectFruit", fruit)
+                    collected = true
+                end
+            end)
+        end
+        
+        return collected
+    end
+
+    -----------------------
+    -- AUTO JOIN TEAM FUNCTION
+    -----------------------
+    local function AutoJoinTeam()
+        local desiredTeam = Settings.DesiredTeam
+        
+        if player.Team and player.Team.Name == desiredTeam then
+            UpdateTeamStatus(desiredTeam)
+            return true
+        end
+        
+        local success = false
+        pcall(function()
+            local commF = GetCommF()
+            
+            if commF and commF:IsA("RemoteFunction") then
+                commF:InvokeServer("SetTeam", desiredTeam)
+                success = true
+                Status("✅ Joined team: " .. desiredTeam)
+            else
+                local teamRemote = ReplicatedStorage:FindFirstChild("TeamSelect") or
+                                  ReplicatedStorage:FindFirstChild("Team")
+                if teamRemote then
+                    if teamRemote:IsA("RemoteFunction") then
+                        teamRemote:InvokeServer(desiredTeam)
+                    elseif teamRemote:IsA("RemoteEvent") then
+                        teamRemote:FireServer(desiredTeam)
+                    end
+                    success = true
+                    Status("✅ Joined team: " .. desiredTeam)
+                end
+            end
+        end)
+        
+        task.wait(1)
+        if player.Team then
+            UpdateTeamStatus(player.Team.Name)
+        else
+            UpdateTeamStatus("None")
+        end
+        
+        return success
+    end
+
+    -----------------------
+    -- INSTANT TELEPORT FUNCTION
+    -----------------------
+    local function TeleportTo(position)
+        local character = player.Character
+        if not character then return false end
+        
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then return false end
+        
+        pcall(function()
+            rootPart.CFrame = CFrame.new(position)
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:MoveTo(position)
+            end
+        end)
+        
+        return true
+    end
+
+    -----------------------
+    -- ADD BILLBOARD LABEL TO FRUIT
+    -----------------------
+    local function AddLabel(part)
+        pcall(function()
+            if part:FindFirstChild("BillboardGui") then
+                return
+            end
+
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "BillboardGui"
+            billboard.Size = UDim2.new(0, 150, 0, 30)
+            billboard.AlwaysOnTop = true
+            billboard.StudsOffset = Vector3.new(0, 2, 0)
+            billboard.Parent = part
+
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.fromScale(1, 1)
+            label.BackgroundTransparency = 1
+            label.TextScaled = true
+            label.TextColor3 = Color3.fromRGB(255, 0, 0)
+            label.Text = "FRUIT"
+            label.Parent = billboard
+
+            coroutine.wrap(function()
+                while part and part.Parent do
+                    task.wait(0.1)
+                    local character = player.Character
+                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                    if hrp and part then
+                        local distance = math.floor((hrp.Position - part.Position).Magnitude)
+                        label.Text = "💀 " .. distance .. "m"
+                    end
+                end
+            end)()
+        end)
+    end
+
+    -- Initialize settings
+    _G.StoreF = true
+    UpdateStoreStatus(true)
+
+    -----------------------
+    -- AUTO STORE LOOP
+    -----------------------
+    task.spawn(function()
+        while task.wait(0.5) do
+            if _G.StoreF then
+                pcall(function()
+                    local storedCount = 0
+                    
+                    local backpack = player:FindFirstChild("Backpack")
+                    if backpack then
+                        for _, tool in ipairs(backpack:GetChildren()) do
+                            local success = Store(tool)
+                            if success then
+                                storedCount = storedCount + 1
+                            end
+                        end
+                    end
+                    
+                    if player.Character then
+                        for _, tool in ipairs(player.Character:GetChildren()) do
+                            if tool:IsA("Tool") then
+                                local success = Store(tool)
+                                if success then
+                                    storedCount = storedCount + 1
+                                end
+                            end
+                        end
+                    end
+                    
+                    if storedCount > 0 then
+                        Status("💾 Stored " .. storedCount .. " fruit(s)")
+                    end
+                end)
+            end
+        end
+    end)
+
+    -----------------------
+    -- AUTO TEAM JOIN
+    -----------------------
+    AutoJoinTeam()
+
+    spawn(function()
+        while task.wait(10) do
+            if player.Team then
+                UpdateTeamStatus(player.Team.Name)
+                if player.Team.Name ~= Settings.DesiredTeam then
+                    Status("🔄 Rejoining team: " .. Settings.DesiredTeam)
+                    AutoJoinTeam()
+                end
+            else
+                UpdateTeamStatus("None")
+                Status("🔄 Joining team: " .. Settings.DesiredTeam)
+                AutoJoinTeam()
+            end
+        end
+    end)
+
+    -----------------------
+    -- GET FRUIT NAME
+    -----------------------
+    local function GetFruitName(fruit)
+        if not fruit then return nil end
+        
+        local name = fruit.Name
+        if string.find(name, "Fruit") or string.find(name, "Item") then
+            local fruitName = nil
+            
+            local eatRemote = fruit:FindFirstChild("EatRemote", true)
+            if eatRemote then
+                local originalName = eatRemote.Parent:GetAttribute("OriginalName")
+                if originalName then
+                    fruitName = originalName
+                end
+            end
+            
+            if not fruitName then
+                local value = fruit:FindFirstChild("Value")
+                if value and value:IsA("StringValue") then
+                    fruitName = value.Value
+                end
+            end
+            
+            if not fruitName then
+                fruitName = string.gsub(name, "Fruit", "")
+                fruitName = string.gsub(fruitName, "Item", "")
+                fruitName = string.gsub(fruitName, "_", " ")
+                fruitName = string.gsub(fruitName, "%d+", "")
+            end
+            
+            return fruitName or "Unknown Fruit"
+        end
+        return nil
+    end
+
+    -----------------------
+    -- FIND FRUIT
+    -----------------------
+    local function FindFruit()
+        local found = nil
+        
+        pcall(function()
+            for _, obj in ipairs(workspace:GetChildren()) do
+                if obj and (obj:IsA("Tool") or obj:IsA("Model")) then
+                    local name = obj.Name or ""
+                    if string.find(name, "Fruit") or string.find(name, "Item") then
+                        local handle = obj:FindFirstChild("Handle")
+                        if handle and handle:IsA("BasePart") then
+                            if obj.Parent == workspace then
+                                found = obj
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+        
+        return found
+    end
+
+    -----------------------
+    -- HOP FUNCTION
+    -----------------------
+    local function Hop()
+        Status("🔄 Finding server...")
+        
+        local data = nil
+        pcall(function()
+            data = HttpService:JSONDecode(
+                game:HttpGet(
+                    "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+                )
+            )
+        end)
+
+        if not data or not data.data then
+            return false
+        end
+
+        local servers = {}
+        for _, s in ipairs(data.data) do
+            if s.id ~= game.JobId and s.playing > 0 and s.playing < s.maxPlayers then
+                table.insert(servers, s)
+            end
+        end
+
+        if #servers == 0 then
+            return false
+        end
+
+        local serverBrowser = ReplicatedStorage:FindFirstChild("__ServerBrowser")
+        
+        if serverBrowser and serverBrowser:IsA("RemoteFunction") then
+            while #servers > 0 do
+                local index = math.random(1, #servers)
+                local server = servers[index]
+                
+                local ok = pcall(function()
+                    serverBrowser:InvokeServer("teleport", server.id)
+                end)
+                
+                if ok then
+                    return true
+                end
+                
+                table.remove(servers, index)
+                task.wait(0.2)
+            end
+        end
+        
+        return false
+    end
+
+    -----------------------
+    -- WAIT FOR CHARACTER
+    -----------------------
+    repeat 
+        task.wait()
+    until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+    task.wait(2)
+
+    -----------------------
+    -- MAIN LOOP WITH AUTO BRING UNTIL COLLECT
+    -----------------------
+    local lastFruit = nil
+    local lastFruitPosition = nil
+    local bringAttempts = 0
+    local maxBringAttempts = 10
+    
+    while true do
+        task.wait(0.3)
+        
+        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+            Status("⏳ Waiting for character...")
+            task.wait(1)
+            continue
+        end
+        
+        local fruit = nil
+        pcall(function()
+            fruit = FindFruit()
+        end)
+        
+        if fruit and fruit:FindFirstChild("Handle") then
+            local handle = fruit.Handle
+            local fruitPosition = handle.Position
+            
+            -- Check if same fruit
+            if lastFruit == fruit and lastFruitPosition and (fruitPosition - lastFruitPosition).Magnitude < 5 then
+                Status("⏳ Waiting...")
+                task.wait(1)
+                continue
+            end
+            
+            lastFruit = fruit
+            lastFruitPosition = fruitPosition
+            bringAttempts = 0
+            
+            local fruitName = GetFruitName(fruit) or fruit.Name
+            UpdateFruitDisplay(fruitName)
+            
+            -- Step 1: Teleport to fruit
+            Status("⚡ Teleporting to: " .. fruitName)
+            AddLabel(handle)
+            
+            local teleportSuccess = TeleportTo(fruitPosition)
+            
+            if teleportSuccess then
+                Status("✅ Teleported to: " .. fruitName)
+                task.wait(0.3)
+                
+                -- Step 2: Auto Bring loop until collected
+                local collected = false
+                local attempt = 0
+                
+                Status("🔄 Bringing " .. fruitName .. " to you...")
+                
+                while not collected and attempt < maxBringAttempts do
+                    attempt = attempt + 1
+                    
+                    -- Check if fruit still exists
+                    if not fruit or fruit.Parent ~= Workspace then
+                        Status("⚠️ Fruit disappeared!")
+                        break
+                    end
+                    
+                    -- Check if fruit is already in inventory
+                    local inInventory = false
+                    local backpack = player:FindFirstChild("Backpack")
+                    if backpack then
+                        for _, tool in ipairs(backpack:GetChildren()) do
+                            if tool == fruit or tool.Name == fruit.Name then
+                                inInventory = true
+                                break
+                            end
+                        end
+                    end
+                    
+                    if inInventory then
+                        Status("✅ Fruit already in inventory!")
+                        collected = true
+                        break
+                    end
+                    
+                    -- Try to bring fruit closer
+                    local brought = BringFruit(fruit)
+                    
+                    if brought then
+                        Status("🔄 Brought " .. fruitName .. " closer (Attempt " .. attempt .. "/" .. maxBringAttempts .. ")")
+                    else
+                        Status("🔄 Bringing " .. fruitName .. " (Attempt " .. attempt .. "/" .. maxBringAttempts .. ")")
+                    end
+                    
+                    task.wait(0.3)
+                    
+                    -- Try to collect after each bring attempt
+                    local collectAttempt = CollectFruit(fruit)
+                    
+                    if collectAttempt then
+                        collected = true
+                        Status("✅ Collected: " .. fruitName)
+                        UpdateFruitDisplay("Collected: " .. fruitName)
+                        break
+                    end
+                    
+                    -- Check if fruit is now close enough to collect
+                    local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    if rootPart and handle then
+                        local distance = (rootPart.Position - handle.Position).Magnitude
+                        if distance < 8 then
+                            -- Try collect one more time
+                            local finalCollect = CollectFruit(fruit)
+                            if finalCollect then
+                                collected = true
+                                Status("✅ Collected: " .. fruitName)
+                                UpdateFruitDisplay("Collected: " .. fruitName)
+                                break
+                            end
+                        end
+                    end
+                    
+                    task.wait(0.2)
+                end
+                
+                -- If collected, auto store
+                if collected then
+                    if _G.StoreF then
+                        task.wait(0.2)
+                        local backpack = player:FindFirstChild("Backpack")
+                        if backpack then
+                            for _, tool in ipairs(backpack:GetChildren()) do
+                                if tool:IsA("Tool") and string.find(string.lower(tool.Name), "fruit") then
+                                    Store(tool)
+                                end
+                            end
+                        end
+                    end
+                else
+                    Status("⚠️ Failed to collect after " .. maxBringAttempts .. " attempts")
+                    UpdateFruitDisplay("Failed: " .. fruitName)
+                end
+                
+                task.wait(0.5)
+            else
+                Status("⚠️ Teleport failed")
+                task.wait(1)
+            end
+        else
+            lastFruit = nil
+            lastFruitPosition = nil
+            bringAttempts = 0
+            UpdateFruitDisplay(nil)
+            
+            Status("🔄 No fruit... hopping")
+            task.wait(2)
+            
+            for i = 5, 1, -1 do
+                Status("⚡ Hop in " .. i)
+                task.wait(1)
+            end
+            
+            local hopSuccess = Hop()
+            if hopSuccess then
+                Status("✅ Hopped!")
+                task.wait(2)
+                AutoJoinTeam()
+            else
+                Status("⚠️ Hop failed")
+            end
+            task.wait(3)
+        end
+    end
+end
+
+-- ==================== EXECUTE ====================
+task.spawn(runMainScript)
