@@ -164,486 +164,6 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					x[z.__type] = x[`Create{z.__type}`]
 				end
 				w.Elements = x
-				local function createFloatingController(window, config)
-					config = config or {}
-
-					local userInputService = game:GetService("UserInputService")
-					local workspaceService = game:GetService("Workspace")
-					local animationEnabled = config.FloatingAnimations ~= false
-					local tapAction = config.FloatingTapAction == "menu" and "menu" or "toggle"
-					local menuWidth = 204
-					local menuHeight = 84
-					local menuOpen = false
-					local pressed = false
-					local moved = false
-					local longPress = false
-					local pressInput
-					local pressPosition
-					local buttonStartPosition
-					local rowReferences = {}
-					local items = {}
-					local openMenu, closeMenu, toggleMenu, rebuildMenu, positionMenu
-
-					local floatingRoot = u("Frame", {
-						Name = "IOS27FloatingRoot",
-						BackgroundTransparency = 1,
-						BorderSizePixel = 0,
-						Size = UDim2.fromScale(1, 1),
-						ZIndex = 100,
-						Parent = v,
-					})
-
-					local initialPosition = typeof(config.FloatingPosition) == "UDim2" and config.FloatingPosition or UDim2.new(0.86, 0, 0.42, 0)
-					local orbButton = u("TextButton", {
-						Name = "IOS27OrbButton",
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Position = initialPosition,
-						Size = UDim2.fromOffset(58, 58),
-						BackgroundTransparency = 1,
-						BorderSizePixel = 0,
-						AutoButtonColor = false,
-						Text = "",
-						ZIndex = 101,
-						Parent = floatingRoot,
-					})
-					local orbScale = u("UIScale", { Scale = 1, Parent = orbButton })
-					local orbFace = u("Frame", {
-						Name = "IOS27Orb",
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.fromOffset(48, 48),
-						BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-						BackgroundTransparency = 0,
-						BorderSizePixel = 0,
-						ClipsDescendants = true,
-						ZIndex = 102,
-						Parent = orbButton,
-					})
-					u("UICorner", { CornerRadius = UDim.new(1, 0), Parent = orbFace })
-
-					local function resolveIcon(iconName)
-						local iconData = typeof(iconName) == "string" and w.Utilities:GetIcon(iconName) or iconName
-						if typeof(iconData) == "table" and iconData.Image then
-							return iconData.Image, iconData.ImageRectSize or Vector2.zero, iconData.ImageRectOffset or Vector2.zero
-						end
-						if typeof(iconName) == "string" and (iconName:match("^rbxasset") or iconName:match("^https?://")) then
-							return iconName, Vector2.zero, Vector2.zero
-						end
-						local fallback = w.Utilities:GetIcon("droplets")
-						if typeof(fallback) == "table" then
-							return fallback.Image, fallback.ImageRectSize or Vector2.zero, fallback.ImageRectOffset or Vector2.zero
-						end
-						return "", Vector2.zero, Vector2.zero
-					end
-
-					local orbImage, orbRectSize, orbRectOffset = resolveIcon(config.FloatingIcon or "droplets")
-					local orbIcon = u("ImageLabel", {
-						Name = "OrbIcon",
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.fromOffset(21, 21),
-						BackgroundTransparency = 1,
-						Image = orbImage,
-						ImageRectSize = orbRectSize,
-						ImageRectOffset = orbRectOffset,
-						ImageColor3 = Color3.fromRGB(245, 248, 255),
-						ZIndex = 104,
-						Parent = orbFace,
-					})
-
-					local menu = u("CanvasGroup", {
-						Name = "IOS27FloatingMenu",
-						AnchorPoint = Vector2.new(0, 0),
-						Position = UDim2.fromOffset(0, 0),
-						Size = UDim2.fromOffset(menuWidth, menuHeight),
-						BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-						BackgroundTransparency = 0,
-						BorderSizePixel = 0,
-						ClipsDescendants = true,
-						GroupTransparency = 1,
-						Visible = false,
-						ZIndex = 110,
-						Parent = floatingRoot,
-					})
-					u("UICorner", { CornerRadius = UDim.new(0, 18), Parent = menu })
-					local menuScale = u("UIScale", { Scale = 0.86, Parent = menu })
-					local menuList = u("ScrollingFrame", {
-						Name = "MenuItems",
-						Position = UDim2.fromOffset(6, 6),
-						Size = UDim2.new(1, -12, 1, -12),
-						BackgroundTransparency = 1,
-						BorderSizePixel = 0,
-						ScrollBarThickness = 3,
-						ScrollBarImageColor3 = Color3.fromRGB(210, 221, 240),
-						ScrollBarImageTransparency = 0.58,
-						CanvasSize = UDim2.fromOffset(0, 0),
-						ZIndex = 111,
-						Parent = menu,
-					})
-					local menuLayout = u("UIListLayout", {
-						Padding = UDim.new(0, 4),
-						SortOrder = Enum.SortOrder.LayoutOrder,
-						Parent = menuList,
-					})
-
-					local function getViewportSize()
-						local camera = workspaceService.CurrentCamera
-						return camera and camera.ViewportSize or Vector2.new(1280, 720)
-					end
-
-					local function animate(object, duration, style, direction, properties)
-						if not animationEnabled then
-							for property, value in next, properties do
-								object[property] = value
-							end
-							return nil
-						end
-						local tween = g:Create(object, TweenInfo.new(duration, style or Enum.EasingStyle.Quint, direction or Enum.EasingDirection.Out), properties)
-						tween:Play()
-						return tween
-					end
-
-					local toggleWindowItem = {
-						Title = "",
-						Icon = "Min",
-						Order = 1,
-						InternalAction = "ToggleWindow",
-					}
-					local closeWindowItem = {
-						Title = "Thoát giao diện",
-						Icon = "Close",
-						Order = 9999,
-						InternalAction = "DestroyLibrary",
-					}
-					items[1] = toggleWindowItem
-					items[2] = closeWindowItem
-					if typeof(config.FloatingItems) == "table" then
-						for _, item in ipairs(config.FloatingItems) do
-							if typeof(item) == "table" then
-								table.insert(items, item)
-							end
-						end
-					end
-
-					positionMenu = function()
-						local viewport = getViewportSize()
-						local anchorPosition = orbButton.AbsolutePosition
-						local anchorSize = orbButton.AbsoluteSize
-						local panelHeight = menuHeight
-						local maxX = math.max(8, viewport.X - menuWidth - 8)
-						local xPosition = math.clamp(anchorPosition.X + anchorSize.X / 2 - menuWidth / 2, 8, maxX)
-						local belowY = anchorPosition.Y + anchorSize.Y + 8
-						local aboveY = anchorPosition.Y - panelHeight - 8
-						local belowFits = belowY + panelHeight <= viewport.Y - 8
-						local yPosition = belowFits and belowY or aboveY
-						local maxY = math.max(8, viewport.Y - panelHeight - 8)
-						menu.Position = UDim2.fromOffset(xPosition, math.clamp(yPosition, 8, maxY))
-					end
-
-					rebuildMenu = function()
-						for _, child in ipairs(menuList:GetChildren()) do
-							if not child:IsA("UIListLayout") then
-								child:Destroy()
-							end
-						end
-						table.clear(rowReferences)
-						table.sort(items, function(left, right)
-							return (left.Order or 1000) < (right.Order or 1000)
-						end)
-
-						for order, item in ipairs(items) do
-							local title = item.Title or "Item"
-							local iconName = item.Icon
-							if item.InternalAction == "ToggleWindow" then
-								title = window.Minimized and "Mở giao diện" or "Ẩn giao diện"
-								iconName = window.Minimized and "Max" or "Min"
-							end
-
-							local row = u("TextButton", {
-								Name = "FloatingItem",
-								Size = UDim2.new(1, -5, 0, 34),
-								BackgroundTransparency = 1,
-								BorderSizePixel = 0,
-								AutoButtonColor = false,
-								Text = "",
-								LayoutOrder = order,
-								ZIndex = 112,
-								Parent = menuList,
-							})
-							u("UICorner", { CornerRadius = UDim.new(0, 10), Parent = row })
-							local hover = u("Frame", {
-								Name = "Hover",
-								Size = UDim2.fromScale(1, 1),
-								BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-								BackgroundTransparency = 1,
-								BorderSizePixel = 0,
-								ZIndex = 113,
-								Parent = row,
-							}, { u("UICorner", { CornerRadius = UDim.new(0, 10) }) })
-							local image, rectSize, rectOffset = resolveIcon(iconName)
-							local rowIcon = u("ImageLabel", {
-								Name = "ItemIcon",
-								AnchorPoint = Vector2.new(0, 0.5),
-								Position = UDim2.new(0, 10, 0.5, 0),
-								Size = UDim2.fromOffset(16, 16),
-								BackgroundTransparency = 1,
-								Image = image,
-								ImageRectSize = rectSize,
-								ImageRectOffset = rectOffset,
-								ImageColor3 = Color3.fromRGB(231, 237, 249),
-								ZIndex = 114,
-								Parent = row,
-							})
-							local label = u("TextLabel", {
-								Name = "ItemLabel",
-								Position = UDim2.new(0, 36, 0, 0),
-								Size = UDim2.new(1, -46, 1, 0),
-								BackgroundTransparency = 1,
-								FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-								Text = title,
-								TextSize = 13,
-								TextColor3 = Color3.fromRGB(245, 247, 252),
-								TextXAlignment = Enum.TextXAlignment.Left,
-								TextTruncate = Enum.TextTruncate.AtEnd,
-								ZIndex = 114,
-								Parent = row,
-							})
-							local rowScale = u("UIScale", { Scale = 1, Parent = row })
-
-							row.MouseEnter:Connect(function()
-								animate(hover, 0.14, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { BackgroundTransparency = 0.86 })
-							end)
-							row.MouseLeave:Connect(function()
-								animate(hover, 0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { BackgroundTransparency = 1 })
-								animate(rowScale, 0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Scale = 1 })
-							end)
-							row.MouseButton1Down:Connect(function()
-								animate(rowScale, 0.09, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Scale = 0.96 })
-							end)
-							row.MouseButton1Up:Connect(function()
-								animate(rowScale, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out, { Scale = 1 })
-							end)
-							row.Activated:Connect(function()
-								closeMenu()
-								if item.InternalAction == "ToggleWindow" then
-									window:Minimize()
-								elseif item.InternalAction == "DestroyLibrary" then
-									w:Destroy()
-								elseif typeof(item.Callback) == "function" then
-									w:SafeCallback(item.Callback, window)
-								end
-							end)
-
-							table.insert(rowReferences, { Label = label, Icon = rowIcon })
-						end
-
-						local contentHeight = #items * 34 + math.max(0, #items - 1) * 4
-						local viewport = getViewportSize()
-						menuHeight = math.clamp(contentHeight + 12, 72, math.max(72, viewport.Y - 16))
-						menu.Size = UDim2.fromOffset(menuWidth, menuHeight)
-						menuList.CanvasSize = UDim2.fromOffset(0, contentHeight)
-						if menuOpen then
-							positionMenu()
-						end
-					end
-
-					openMenu = function()
-						if menuOpen then
-							return
-						end
-						menuOpen = true
-						window.FloatingOpen = true
-						rebuildMenu()
-						menu.Visible = true
-						menu.GroupTransparency = 1
-						menuScale.Scale = 0.86
-						positionMenu()
-						animate(menu, 0.42, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { GroupTransparency = 0 })
-						animate(menuScale, 0.48, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Scale = 1 })
-						animate(orbIcon, 0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Rotation = 180 })
-
-						for index, reference in ipairs(rowReferences) do
-							local label, rowIcon = reference.Label, reference.Icon
-							label.TextTransparency = 1
-							rowIcon.ImageTransparency = 1
-							task.delay(math.min(index * 0.055, 0.3), function()
-								if menuOpen and label.Parent then
-									animate(label, 0.26, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { TextTransparency = 0 })
-									animate(rowIcon, 0.26, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { ImageTransparency = 0 })
-								end
-							end)
-						end
-					end
-
-					closeMenu = function()
-						if not menuOpen then
-							return
-						end
-						menuOpen = false
-						window.FloatingOpen = false
-						animate(menu, 0.34, Enum.EasingStyle.Quint, Enum.EasingDirection.In, { GroupTransparency = 1 })
-						animate(menuScale, 0.36, Enum.EasingStyle.Quint, Enum.EasingDirection.In, { Scale = 0.9 })
-						animate(orbIcon, 0.34, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Rotation = 0 })
-						task.delay(0.36, function()
-							if not menuOpen and menu.Parent then
-								menu.Visible = false
-								menuScale.Scale = 0.86
-							end
-						end)
-					end
-
-					toggleMenu = function()
-						if menuOpen then
-							closeMenu()
-						else
-							openMenu()
-						end
-					end
-
-					local function activateOrb()
-						if tapAction == "menu" then
-							toggleMenu()
-						else
-							closeMenu()
-							window:Minimize()
-						end
-					end
-
-					local function pointInside(guiObject, point)
-						local position = guiObject.AbsolutePosition
-						local size = guiObject.AbsoluteSize
-						return point.X >= position.X and point.X <= position.X + size.X and point.Y >= position.Y and point.Y <= position.Y + size.Y
-					end
-
-					orbButton.InputBegan:Connect(function(input)
-						if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
-							return
-						end
-						pressed = true
-						moved = false
-						longPress = false
-						pressInput = input
-						pressPosition = input.Position
-						buttonStartPosition = orbButton.AbsolutePosition + orbButton.AbsoluteSize / 2
-						animate(orbScale, 0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Scale = 0.92 })
-						task.delay(0.42, function()
-							if pressed and not moved then
-								longPress = true
-								openMenu()
-							end
-						end)
-					end)
-
-					m.AddSignal(userInputService.InputChanged, function(input)
-						if not pressed then
-							return
-						end
-						if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
-							return
-						end
-						local delta = input.Position - pressPosition
-						if not moved and delta.Magnitude > 5 then
-							moved = true
-							closeMenu()
-						end
-						if moved then
-							local viewport = getViewportSize()
-							local centerX = math.clamp(buttonStartPosition.X + delta.X, 30, viewport.X - 30)
-							local centerY = math.clamp(buttonStartPosition.Y + delta.Y, 30, viewport.Y - 30)
-							orbButton.Position = UDim2.fromOffset(centerX, centerY)
-						end
-					end)
-
-					m.AddSignal(userInputService.InputEnded, function(input)
-						if not pressed or not pressInput then
-							return
-						end
-						if pressInput.UserInputType == Enum.UserInputType.Touch and input ~= pressInput then
-							return
-						end
-						if pressInput.UserInputType == Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-							return
-						end
-						pressed = false
-						animate(orbScale, 0.34, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, { Scale = 1 })
-
-						if moved then
-							local viewport = getViewportSize()
-							local currentPosition = orbButton.AbsolutePosition + orbButton.AbsoluteSize / 2
-							local snapX = currentPosition.X < viewport.X / 2 and 30 or viewport.X - 30
-							local snapY = math.clamp(currentPosition.Y, 30, viewport.Y - 30)
-							animate(orbButton, 0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, {
-								Position = UDim2.fromOffset(snapX, snapY),
-							})
-							if menuOpen then
-								task.delay(0.41, positionMenu)
-							end
-						elseif not longPress then
-							activateOrb()
-						end
-						pressInput = nil
-					end)
-
-					m.AddSignal(userInputService.InputBegan, function(input)
-						if not menuOpen then
-							return
-						end
-						if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
-							return
-						end
-						if not pointInside(menu, input.Position) and not pointInside(orbButton, input.Position) then
-							closeMenu()
-						end
-					end)
-
-					local currentCamera = workspaceService.CurrentCamera
-					if currentCamera then
-						m.AddSignal(currentCamera:GetPropertyChangedSignal("ViewportSize"), function()
-							if menuOpen then
-								positionMenu()
-							end
-						end)
-					end
-
-					rebuildMenu()
-					window.FloatingRoot = floatingRoot
-					window.FloatingOrb = orbButton
-					window.FloatingMenu = menu
-					window.FloatingItems = items
-					window.FloatingTapAction = tapAction
-					window.FloatingOpen = false
-
-					function window:SetFloatingButton(enabled)
-						floatingRoot.Visible = enabled ~= false
-					end
-
-					function window:SetFloatingTapAction(action)
-						tapAction = action == "menu" and "menu" or "toggle"
-						self.FloatingTapAction = tapAction
-					end
-
-					function window:ToggleFloatingMenu()
-						toggleMenu()
-					end
-
-					function window:AddFloatingItem(item)
-						if typeof(item) ~= "table" then
-							return
-						end
-						table.insert(items, item)
-						rebuildMenu()
-					end
-
-					function window:RemoveFloatingItem(title)
-						for index = #items, 1, -1 do
-							local item = items[index]
-							if not item.InternalAction and item.Title == title then
-								table.remove(items, index)
-							end
-						end
-						rebuildMenu()
-					end
-				end
 				function w:Window(y)
 					assert(w.CreatedWindow == nil, debug.traceback("You cannot create more than one window.", 2))
 					if not y.Title then
@@ -670,9 +190,6 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					v.Name = `FluentRenewed_{y.Title}`
 					w.CreatedWindow = z
 					w:SetTheme(w.Theme)
-					if y.FloatingButton ~= false then
-						createFloatingController(z, y)
-					end
 					return z
 				end
 				function w:AddWindow(y)
@@ -1041,12 +558,25 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					l.TabCount = l.TabCount + 1
 					local s, t = l.TabCount, { Selected = false, Name = m, Type = "Tab" }
 					n = n:find("^rbxasset[://|id://]") == nil and p.Utilities:GetIcon(n) or { Image = n, ImageRectOffset = Vector2.zero, ImageRectSize = Vector2.zero }
-					t.Frame = h("TextButton", { Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1, Parent = o, ThemeTag = { BackgroundColor3 = "Tab" } }, { h("UICorner", { CornerRadius = UDim.new(0, 17) }), h("TextLabel", { AnchorPoint = Vector2.new(0, 0.5), Position = n ~= nil and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 12, 0.5, 0), Text = m, RichText = true, TextColor3 = Color3.fromRGB(255, 255, 255), TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), TextSize = 12, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1, -12, 1, 0), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } }), h("ImageLabel", { AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 8, 0.5, 0), BackgroundTransparency = 1, ImageRectOffset = n and n.ImageRectOffset or Vector2.zero, ImageRectSize = n and n.ImageRectSize or Vector2.zero, Image = n and n.Image or nil, ThemeTag = { ImageColor3 = "Text" } }) })
+					t.Frame = h("TextButton", { Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1, Parent = o, ThemeTag = { BackgroundColor3 = "Tab" } }, { h("UICorner", { CornerRadius = UDim.new(0, 6) }), h("TextLabel", { AnchorPoint = Vector2.new(0, 0.5), Position = n ~= nil and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 12, 0.5, 0), Text = m, RichText = true, TextColor3 = Color3.fromRGB(255, 255, 255), TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), TextSize = 12, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1, -12, 1, 0), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } }), h("ImageLabel", { AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 8, 0.5, 0), BackgroundTransparency = 1, ImageRectOffset = n and n.ImageRectOffset or Vector2.zero, ImageRectSize = n and n.ImageRectSize or Vector2.zero, Image = n and n.Image or nil, ThemeTag = { ImageColor3 = "Text" } }) })
 					local pillScale = h("UIScale", { Scale = 1, Parent = t.Frame })
 					t.PillMotor = f.SingleMotor.new(1)
 					t.PillMotor:onStep(function(scale)
 						pillScale.Scale = scale
 					end)
+					local pillAnimationToken = 0
+					function t:AnimatePill(peakScale, settleScale)
+						pillAnimationToken += 1
+						local animationToken = pillAnimationToken
+						self.PillMotor:setGoal(i(peakScale, { frequency = 14, dampingRatio = 0.58 }))
+						if settleScale then
+							task.delay(0.14, function()
+								if animationToken == pillAnimationToken then
+									self.PillMotor:setGoal(i(settleScale, { frequency = 7, dampingRatio = 0.68 }))
+								end
+							end)
+						end
+					end
 					local u = h("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder })
 					t.ContainerFrame = h("ScrollingFrame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Parent = q.ContainerHolder, Visible = false, BottomImage = "rbxassetid://6889812791", MidImage = "rbxassetid://6889812721", TopImage = "rbxassetid://6276641225", ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255), ScrollBarImageTransparency = 0.95, ScrollBarThickness = 3, BorderSizePixel = 0, CanvasSize = UDim2.fromScale(0, 0), ScrollingDirection = Enum.ScrollingDirection.Y }, { u, h("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingLeft = UDim.new(0, 1), PaddingTop = UDim.new(0, 1), PaddingBottom = UDim.new(0, 1) }) })
 					g.AddSignal(u:GetPropertyChangedSignal("AbsoluteContentSize"), function()
@@ -1056,19 +586,19 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					end)
 					t.Motor, t.SetTransparency = g.SpringMotor(1, t.Frame, "BackgroundTransparency")
 					g.AddSignal(t.Frame.MouseEnter, function()
-						t.SetTransparency(t.Selected and 0.82 or 0.9)
+						t.SetTransparency(t.Selected and 0.85 or 0.89)
 					end)
 					g.AddSignal(t.Frame.MouseLeave, function()
-						t.SetTransparency(t.Selected and 0.87 or 1)
-						t.PillMotor:setGoal(i(t.Selected and 1.02 or 1, { frequency = 9 }))
+						t.SetTransparency(t.Selected and 0.89 or 1)
+						t:AnimatePill(t.Selected and 1.08 or 1, t.Selected and 1.025 or nil)
 					end)
 					g.AddSignal(t.Frame.MouseButton1Down, function()
 						t.SetTransparency(0.92)
-						t.PillMotor:setGoal(i(0.96, { frequency = 12 }))
+						t:AnimatePill(0.9, nil)
 					end)
 					g.AddSignal(t.Frame.MouseButton1Up, function()
-						t.SetTransparency(t.Selected and 0.82 or 0.9)
-						t.PillMotor:setGoal(i(t.Selected and 1.02 or 1, { frequency = 9 }))
+						t.SetTransparency(t.Selected and 0.85 or 0.89)
+						t:AnimatePill(t.Selected and 1.12 or 1.08, t.Selected and 1.025 or 1)
 					end)
 					g.AddSignal(t.Frame.MouseButton1Click, function()
 						l:SelectTab(s)
@@ -1095,11 +625,11 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					for o, p in next, l.Tabs do
 						p.SetTransparency(1)
 						p.Selected = false
-						p.PillMotor:setGoal(i(1, { frequency = 9 }))
+						p:AnimatePill(1, nil)
 					end
-					l.Tabs[m].SetTransparency(0.86)
+					l.Tabs[m].SetTransparency(0.89)
 					l.Tabs[m].Selected = true
-					l.Tabs[m].PillMotor:setGoal(i(1.025, { frequency = 8 }))
+					l.Tabs[m]:AnimatePill(1.14, 1.03)
 					n.TabDisplay.Text = l.Tabs[m].Name
 					n.SelectorPosMotor:setGoal(i(l:GetCurrentTabPos(), { frequency = 6 }))
 					task.spawn(function()
@@ -1247,13 +777,8 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					t.ContainerHolder = r("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
 					t.ContainerAnim = r("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
 					t.ContainerCanvas = r("Frame", { Size = UDim2.new(1, -t.TabWidth - 32, 1, -102), Position = UDim2.fromOffset(t.TabWidth + 26, 90), BackgroundTransparency = 1 }, { t.ContainerAnim, t.ContainerHolder })
-					t.WindowTransition = r("CanvasGroup", {
-						Size = UDim2.fromScale(1, 1),
-						BackgroundTransparency = 1,
-						GroupTransparency = 0,
-					}, { t.AcrylicPaint.Frame, t.TabDisplay, t.ContainerCanvas, H, G })
-					t.WindowScale = r("UIScale", { Scale = 1, Parent = t.WindowTransition })
-					t.Root = r("Frame", { BackgroundTransparency = 1, Size = t.Size, Position = t.Position, Parent = s.Parent }, { t.WindowTransition })
+					t.Root = r("Frame", { BackgroundTransparency = 1, Size = t.Size, Position = t.Position, Parent = s.Parent }, { t.AcrylicPaint.Frame, t.TabDisplay, t.ContainerCanvas, H, G })
+					t.WindowScale = r("UIScale", { Scale = 1, Parent = t.Root })
 					t.HideButton = r("ImageButton", {
 						Visible = l.Utilities:GetOS() == "Mobile",
 						Size = s.Mobile.Size,
@@ -1266,7 +791,7 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						ImageRectOffset = s.Mobile.GetIcon(false).ImageRectOffset,
 						ImageRectSize = s.Mobile.GetIcon(false).ImageRectSize,
 					}, { r("UIAspectRatioConstraint", { AspectRatio = 1 }) })
-					t.TitleBar = d(c.Parent.TitleBar)({ Title = s.Title, SubTitle = s.SubTitle, Parent = t.WindowTransition, Window = t })
+					t.TitleBar = d(c.Parent.TitleBar)({ Title = s.Title, SubTitle = s.SubTitle, Parent = t.Root, Window = t })
 					if l.UseAcrylic then
 						t.AcrylicPaint.AddParent(t.Root)
 					end
@@ -1310,19 +835,15 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 							local wasHidden = not t.Root.Visible
 							t.Root.Visible = true
 							if wasHidden then
-								t.WindowTransition.GroupTransparency = 1
-								t.WindowScale.Scale = 0.94
+								t.WindowScale.Scale = 0.88
 							end
-							windowTweenService:Create(t.WindowTransition, TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { GroupTransparency = 0 }):Play()
-							windowTweenService:Create(t.WindowScale, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+							windowTweenService:Create(t.WindowScale, TweenInfo.new(0.48, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 						else
-							windowTweenService:Create(t.WindowTransition, TweenInfo.new(0.32, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { GroupTransparency = 1 }):Play()
-							windowTweenService:Create(t.WindowScale, TweenInfo.new(0.32, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Scale = 0.94 }):Play()
-							task.delay(0.34, function()
+							windowTweenService:Create(t.WindowScale, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.88 }):Play()
+							task.delay(0.38, function()
 								if animationToken == windowAnimationToken and t.Minimized then
 									t.Root.Visible = false
-									t.WindowTransition.GroupTransparency = 1
-									t.WindowScale.Scale = 0.94
+									t.WindowScale.Scale = 0.88
 								end
 							end)
 						end
@@ -1856,7 +1377,7 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					local n, o = f("TextLabel", { FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), Text = "Value", TextColor3 = Color3.fromRGB(240, 240, 240), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Size = UDim2.new(1, -30, 0, 14), Position = UDim2.new(0, 8, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 1, TextTruncate = Enum.TextTruncate.AtEnd, ThemeTag = { TextColor3 = "Text" } }), f("ImageLabel", { Image = "rbxassetid://10709790948", Size = UDim2.fromOffset(16, 16), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), BackgroundTransparency = 1, ThemeTag = { ImageColor3 = "SubText" } })
 					local p, q = f("TextButton", { Size = UDim2.fromOffset(160, 30), Position = UDim2.new(1, -10, 0.5, 0), AnchorPoint = Vector2.new(1, 0.5), BackgroundTransparency = 0.9, Parent = m.Frame, ThemeTag = { BackgroundColor3 = "DropdownFrame" } }, { f("UICorner", { CornerRadius = UDim.new(0, 8) }), f("UIStroke", { Transparency = 0.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "InElementBorder" } }), o, n }), f("UIListLayout", { Padding = UDim.new(0, 3) })
 					local r = f("ScrollingFrame", { Size = UDim2.new(1, -5, 1, l.Searchable and -40 or -10), Position = UDim2.fromOffset(5, l.Searchable and 40 or 5), BackgroundTransparency = 1, BottomImage = "rbxassetid://6889812791", MidImage = "rbxassetid://6889812721", TopImage = "rbxassetid://6276641225", ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255), ScrollBarImageTransparency = 0.95, ScrollBarThickness = 4, BorderSizePixel = 0, CanvasSize = UDim2.fromScale(0, 0) }, { q })
-					local s = (f("Frame", { Size = UDim2.fromScale(1, 0.6), ThemeTag = { BackgroundColor3 = "DropdownHolder" } }, { r, f("UICorner", { CornerRadius = UDim.new(0, 12) }), f("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }), f("ImageLabel", { BackgroundTransparency = 1, Image = "http://www.roblox.com/asset/?id=5554236805", ScaleType = Enum.ScaleType.Slice, SliceCenter = Rect.new(23, 23, 277, 277), Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(-15, -15), ImageColor3 = Color3.fromRGB(0, 0, 0), ImageTransparency = 0.1 }) }))
+					local s = (f("Frame", { Size = UDim2.fromScale(1, 1), ThemeTag = { BackgroundColor3 = "DropdownHolder" } }, { r, f("UICorner", { CornerRadius = UDim.new(0, 12) }), f("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }), f("ImageLabel", { BackgroundTransparency = 1, Image = "http://www.roblox.com/asset/?id=5554236805", ScaleType = Enum.ScaleType.Slice, SliceCenter = Rect.new(23, 23, 277, 277), Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30), Position = UDim2.fromOffset(-15, -15), ImageColor3 = Color3.fromRGB(0, 0, 0), ImageTransparency = 0.1 }) }))
 					local t = ac(g.Textbox)(s, true)
 					t.Frame.Visible = l.Searchable
 					t.Frame.AnchorPoint = Vector2.new(0.5, 0)
@@ -1867,7 +1388,7 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					local u, v, w = t.Input, (f("Frame", { Size = UDim2.fromOffset(4, 14), BackgroundColor3 = Color3.fromRGB(76, 194, 255), Position = UDim2.fromOffset(-1, 16), AnchorPoint = Vector2.new(0, 0.5), ThemeTag = { BackgroundColor3 = "Accent" } }, { f("UICorner", { CornerRadius = UDim.new(0, 2) }) })), (f("TextLabel", { FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BackgroundColor3 = Color3.fromRGB(255, 255, 255), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Position = UDim2.fromOffset(10, 0), Name = "ButtonLabel", ThemeTag = { TextColor3 = "Text" } }))
 					local x, y = (f("TextButton", { Size = UDim2.new(1, -5, 0, 32), BackgroundTransparency = 1, ZIndex = 23, Text = "", ThemeTag = { BackgroundColor3 = "DropdownOption" } }, { v, w, f("UICorner", { CornerRadius = UDim.new(0, 6) }) })), f("CanvasGroup", { BackgroundTransparency = 1, GroupTransparency = 1, Size = UDim2.fromOffset(170, 300), Parent = self.Library.GUI, Visible = false }, { s, f("UISizeConstraint", { MinSize = Vector2.new(170, 0) }) })
 					k.OpenFrames[#k.OpenFrames + 1] = y
-					local popupScale = f("UIScale", { Scale = 0.92, Parent = y })
+					local popupScale = f("UIScale", { Scale = 0.94, Parent = y })
 					local popupAnimationToken = 0
 					local function z()
 						local viewportSize = b.ViewportSize
@@ -1927,14 +1448,12 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						y.Visible = true
 						if not wasVisible then
 							y.GroupTransparency = 1
-							popupScale.Scale = 0.92
-							s.Size = UDim2.fromScale(1, 0.6)
+							popupScale.Scale = 0.94
 						end
 						B()
 						z()
 						af:Create(y, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { GroupTransparency = 0 }):Play()
-						af:Create(popupScale, TweenInfo.new(0.34, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-						af:Create(s, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Size = UDim2.fromScale(1, 1) }):Play()
+						af:Create(popupScale, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 						af:Create(o, TweenInfo.new(0.27, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Rotation = 180 }):Play()
 						if l.Searchable then
 							u.Text = ""
@@ -1952,14 +1471,13 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						local closeToken = popupAnimationToken
 						E.ScrollingEnabled = true
 						af:Create(y, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { GroupTransparency = 1 }):Play()
-						af:Create(popupScale, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Scale = 0.92 }):Play()
-						af:Create(s, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Size = UDim2.fromScale(1, 0.6) }):Play()
+						af:Create(popupScale, TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.94 }):Play()
 						af:Create(o, TweenInfo.new(0.27, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 						if l.Searchable then
 							u.Text = ""
 							u:ReleaseFocus()
 						end
-						task.delay(0.31, function()
+						task.delay(0.36, function()
 							if closeToken == popupAnimationToken and not l.Opened then
 								y.Visible = false
 								y.GroupTransparency = 1
@@ -2041,6 +1559,17 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 								M = l.Value == J
 							end
 							local rowScale = d("UIScale", { Scale = 1, Parent = L })
+							local rowAnimationToken = 0
+							local function bounceRowScale(peakScale)
+								rowAnimationToken += 1
+								local animationToken = rowAnimationToken
+								af:Create(rowScale, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = peakScale }):Play()
+								task.delay(0.12, function()
+									if animationToken == rowAnimationToken then
+										af:Create(rowScale, TweenInfo.new(0.16, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+									end
+								end)
+							end
 							local function animateRow(transparency, duration, style)
 								af:Create(L, TweenInfo.new(duration, style or Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 									BackgroundTransparency = transparency,
@@ -2057,15 +1586,17 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 							end)
 							d.AddSignal(L.MouseLeave, function()
 								animateRow(M and 0.89 or 1, 0.2)
-								af:Create(rowScale, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+								rowAnimationToken += 1
+								af:Create(rowScale, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 							end)
 							d.AddSignal(L.MouseButton1Down, function()
 								animateRow(0.92, 0.12)
-								af:Create(rowScale, TweenInfo.new(0.12, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 0.97 }):Play()
+								rowAnimationToken += 1
+								af:Create(rowScale, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 0.91 }):Play()
 							end)
 							d.AddSignal(L.MouseButton1Up, function()
 								animateRow(M and 0.85 or 0.9, 0.18)
-								af:Create(rowScale, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+								bounceRowScale(1.1)
 							end)
 							function K:UpdateButton()
 								if j.Multi then
@@ -2075,6 +1606,9 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 								end
 								animateRow(M and 0.89 or 1, 0.2)
 								animateSelectionPill()
+								if M then
+									bounceRowScale(1.06)
+								end
 							end
 							O.InputBegan:Connect(function(U)
 								if U.UserInputType == Enum.UserInputType.MouseButton1 or U.UserInputType == Enum.UserInputType.Touch then
@@ -2486,9 +2020,9 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						if p.UserInputType == Enum.UserInputType.MouseButton1 or p.UserInputType == Enum.UserInputType.Touch then
 							j = true
 							local ratio = (i.Value - i.Min) / (i.Max - i.Min)
-							l.Position = UDim2.new(ratio, -10, 0.5, 0)
-							tweenService:Create(l, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(20, 14) }):Play()
-							tweenService:Create(thumbScale, TweenInfo.new(0.16, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1.06 }):Play()
+							l.Position = UDim2.new(ratio, -12, 0.5, 0)
+							tweenService:Create(l, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(24, 14) }):Play()
+							tweenService:Create(thumbScale, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.18 }):Play()
 						end
 					end)
 					b.AddSignal(ad.InputEnded, function(p)
@@ -2496,8 +2030,8 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 							j = false
 							local ratio = (i.Value - i.Min) / (i.Max - i.Min)
 							l.Position = UDim2.new(ratio, -7, 0.5, 0)
-							tweenService:Create(l, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(14, 14) }):Play()
-							tweenService:Create(thumbScale, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+							tweenService:Create(l, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(14, 14) }):Play()
+							tweenService:Create(thumbScale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 						end
 					end)
 					function i:OnChanged(p)
@@ -2507,7 +2041,7 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					function i:SetValue(p)
 						local q = self.Value or p
 						rawset(self, "Value", h.Utilities:Round(math.clamp(p, i.Min, i.Max), i.Rounding))
-						l.Position = UDim2.new((self.Value - i.Min) / (i.Max - i.Min), j and -10 or -7, 0.5, 0)
+						l.Position = UDim2.new((self.Value - i.Min) / (i.Max - i.Min), j and -12 or -7, 0.5, 0)
 						n.Size = UDim2.fromScale((self.Value - i.Min) / (i.Max - i.Min), 1)
 						o.Text = tostring(self.Value)
 						if typeof(i.Callback) == "function" then
@@ -2563,11 +2097,23 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					local l, m = (d("ImageLabel", { AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(14, 14), Position = UDim2.new(0, 2, 0.5, 0), Image = "http://www.roblox.com/asset/?id=12266946128", ImageTransparency = 0.5, ThemeTag = { ImageColor3 = "ToggleSlider" } })), d("UIStroke", { Transparency = 0.5, ThemeTag = { Color = "ToggleSlider" } })
 					local n = (d("Frame", { Size = UDim2.fromOffset(36, 18), AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Parent = k.Frame, BackgroundTransparency = 1, ThemeTag = { BackgroundColor3 = "Accent" } }, { d("UICorner", { CornerRadius = UDim.new(0, 9) }), m, l }))
 					local togglePillScale = d("UIScale", { Scale = 1, Parent = n })
+					local togglePillAnimationToken = 0
+					local function bounceTogglePill(peakScale)
+						togglePillAnimationToken += 1
+						local animationToken = togglePillAnimationToken
+						ad:Create(togglePillScale, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = peakScale }):Play()
+						task.delay(0.13, function()
+							if animationToken == togglePillAnimationToken then
+								ad:Create(togglePillScale, TweenInfo.new(0.17, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+							end
+						end)
+					end
 					c.AddSignal(k.Frame.MouseButton1Down, function()
-						ad:Create(togglePillScale, TweenInfo.new(0.12, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 0.94 }):Play()
+						togglePillAnimationToken += 1
+						ad:Create(togglePillScale, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 0.88 }):Play()
 					end)
 					c.AddSignal(k.Frame.MouseButton1Up, function()
-						ad:Create(togglePillScale, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+						bounceTogglePill(1.08)
 					end)
 					function j:OnChanged(o)
 						j.Changed = o
@@ -2575,16 +2121,20 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					end
 					function j:SetValue(o)
 						o = not not o
+						local valueChanged = j.Value ~= o
 						rawset(j, "Value", o)
 						c.OverrideTag(m, { Color = j.Value and "Accent" or "ToggleSlider" })
 						c.OverrideTag(l, { ImageColor3 = j.Value and "ToggleToggled" or "ToggleSlider" })
-						ad:Create(l, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-							Position = UDim2.new(0, j.Value and 15 or 2, 0.5, 0),
-							Size = UDim2.fromOffset(j.Value and 18 or 14, 14),
+						ad:Create(l, TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+							Position = UDim2.new(0, j.Value and 14 or 2, 0.5, 0),
+							Size = UDim2.fromOffset(j.Value and 20 or 14, 14),
 						}):Play()
 						ad:Create(n, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { BackgroundTransparency = j.Value and 0 or 1 }):Play()
 						ad:Create(m, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Transparency = j.Value and 0.28 or 0.5 }):Play()
 						l.ImageTransparency = j.Value and 0 or 0.5
+						if valueChanged then
+							bounceTogglePill(1.15)
+						end
 						if typeof(j.Callback) == "function" then
 							i:SafeCallback(j.Callback, j.Value)
 						end
