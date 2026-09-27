@@ -554,10 +554,21 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 				end
 				function l:New(m, n, o)
 					local p, q = d(e), l.Window
+					assert(typeof(m) == "string" and m ~= "", "Tab:New - Missing Title")
+					assert(q and q.TabHolder and q.ContainerHolder, "Tab:New - Window is not initialized")
+					o = o or q.TabHolder
+					assert(o, "Tab:New - Missing tab button parent")
 					local r = p.Elements
-					l.TabCount = l.TabCount + 1
-					local s, t = l.TabCount, { Selected = false, Name = m, Type = "Tab" }
-					n = n:find("^rbxasset[://|id://]") == nil and p.Utilities:GetIcon(n) or { Image = n, ImageRectOffset = Vector2.zero, ImageRectSize = Vector2.zero }
+					local s, t = l.TabCount + 1, { Selected = false, Name = m, Type = "Tab" }
+					if typeof(n) == "string" and n ~= "" then
+						if n:find("^rbxasset[://|id://]") == nil then
+							n = p.Utilities:GetIcon(n)
+						else
+							n = { Image = n, ImageRectOffset = Vector2.zero, ImageRectSize = Vector2.zero }
+						end
+					elseif typeof(n) ~= "table" then
+						n = nil
+					end
 					t.Frame = h("TextButton", { Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1, Parent = o, ThemeTag = { BackgroundColor3 = "Tab" } }, { h("UICorner", { CornerRadius = UDim.new(0, 6) }), h("TextLabel", { AnchorPoint = Vector2.new(0, 0.5), Position = n ~= nil and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 12, 0.5, 0), Text = m, RichText = true, TextColor3 = Color3.fromRGB(255, 255, 255), TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), TextSize = 12, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1, -12, 1, 0), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } }), h("ImageLabel", { AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(16, 16), Position = UDim2.new(0, 8, 0.5, 0), BackgroundTransparency = 1, ImageRectOffset = n and n.ImageRectOffset or Vector2.zero, ImageRectSize = n and n.ImageRectSize or Vector2.zero, Image = n and n.Image or nil, ThemeTag = { ImageColor3 = "Text" } }) })
 					local pillScale = h("UIScale", { Scale = 1, Parent = t.Frame })
 					t.PillMotor = f.SingleMotor.new(1)
@@ -603,6 +614,7 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 					g.AddSignal(t.Frame.MouseButton1Click, function()
 						l:SelectTab(s)
 					end)
+					l.TabCount = s
 					l.Containers[s] = t.ContainerFrame
 					l.Tabs[s] = t
 					t.Container = t.ContainerFrame
@@ -1009,14 +1021,20 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						return Q
 					end
 					local P = d(k.Tab):Init(t)
+					local function createTab(config)
+						assert(typeof(config) == "table", "Window:Tab expects a configuration table")
+						assert(typeof(config.Title) == "string" and config.Title ~= "", "Window:Tab requires a non-empty Title")
+						assert(t.TabHolder and t.ContainerHolder, "Window:Tab - Window is not initialized")
+						return P:New(config.Title, config.Icon, t.TabHolder)
+					end
 					function t:Tab(Q)
-						return P:New(Q.Title, Q.Icon, t.TabHolder)
+						return createTab(Q)
 					end
 					function t:AddTab(Q)
-						return t:Tab(Q)
+						return createTab(Q)
 					end
 					function t:CreateTab(Q)
-						return t:Tab(Q)
+						return createTab(Q)
 					end
 					function t:SelectTab(Q)
 						P:SelectTab(Q)
@@ -1449,11 +1467,13 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						if not wasVisible then
 							y.GroupTransparency = 1
 							popupScale.Scale = 0.94
+							s.Size = UDim2.fromScale(1, 0.98)
 						end
 						B()
 						z()
+						s:TweenSize(UDim2.fromScale(1, 1), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
 						af:Create(y, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { GroupTransparency = 0 }):Play()
-						af:Create(popupScale, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+						af:Create(popupScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 						af:Create(o, TweenInfo.new(0.27, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Rotation = 180 }):Play()
 						if l.Searchable then
 							u.Text = ""
@@ -1470,14 +1490,15 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						popupAnimationToken += 1
 						local closeToken = popupAnimationToken
 						E.ScrollingEnabled = true
+						s:TweenSize(UDim2.fromScale(1, 0.98), Enum.EasingDirection.In, Enum.EasingStyle.Quart, 0.2, true)
 						af:Create(y, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { GroupTransparency = 1 }):Play()
-						af:Create(popupScale, TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.94 }):Play()
+						af:Create(popupScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.94 }):Play()
 						af:Create(o, TweenInfo.new(0.27, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 						if l.Searchable then
 							u.Text = ""
 							u:ReleaseFocus()
 						end
-						task.delay(0.36, function()
+						task.delay(0.32, function()
 							if closeToken == popupAnimationToken and not l.Opened then
 								y.Visible = false
 								y.GroupTransparency = 1
@@ -2125,12 +2146,9 @@ local aa, ab, ac, ad, ae, af, ag, c, e, f, g, h, i, j, k, l, m, n, o, p, q =
 						rawset(j, "Value", o)
 						c.OverrideTag(m, { Color = j.Value and "Accent" or "ToggleSlider" })
 						c.OverrideTag(l, { ImageColor3 = j.Value and "ToggleToggled" or "ToggleSlider" })
-						ad:Create(l, TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-							Position = UDim2.new(0, j.Value and 14 or 2, 0.5, 0),
-							Size = UDim2.fromOffset(j.Value and 20 or 14, 14),
-						}):Play()
-						ad:Create(n, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { BackgroundTransparency = j.Value and 0 or 1 }):Play()
-						ad:Create(m, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Transparency = j.Value and 0.28 or 0.5 }):Play()
+						l:TweenPosition(UDim2.new(0, j.Value and 19 or 2, 0.5, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quint, 0.25, true)
+						ad:Create(n, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { BackgroundTransparency = j.Value and 0 or 1 }):Play()
+						ad:Create(m, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Transparency = j.Value and 0.28 or 0.5 }):Play()
 						l.ImageTransparency = j.Value and 0 or 0.5
 						if valueChanged then
 							bounceTogglePill(1.15)
