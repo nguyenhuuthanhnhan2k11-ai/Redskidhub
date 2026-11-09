@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1426">
+<meta name="description" content="Bộ câu hỏi tương tác 10 câu về Thuế – Bài 6, Giáo dục Kinh tế và Pháp luật lớp 10.">
+<title>Giải mã Thuế · Thử thách 10 câu</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#091323;--surface:#111f35;--surface-2:#172944;--surface-3:#1d3452;
+  --text:#f4f7fb;--muted:#a9b8cb;--teal:#43ddcf;--teal-dark:#092a31;
+  --gold:#ffd27a;--green:#69e6a5;--red:#ff7881;--line:#2a405e;
+  --shadow:0 24px 80px rgba(0,0,0,.34);--radius:22px;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg);overflow-x:hidden}
+body{margin:0;min-height:100vh;min-height:100svh;padding:clamp(0px,2vw,24px);display:grid;place-items:center;overflow-x:hidden;background:radial-gradient(circle at 88% 7%,rgba(46,112,143,.27),transparent 28%),radial-gradient(circle at 5% 92%,rgba(23,119,108,.18),transparent 27%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.app{width:min(100%,1480px);min-height:min(900px,calc(100vh - 36px));background:rgba(10,20,36,.96);border:1px solid rgba(169,184,203,.19);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.topline{height:5px;flex:none;background:linear-gradient(90deg,var(--teal),#8eece2 45%,var(--gold))}
+header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:21px 28px 12px;border-bottom:1px solid rgba(169,184,203,.09)}
+.brand{font-size:12px;font-weight:950;letter-spacing:.16em;color:var(--teal)}
+.subject{font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:right}
+main{padding:clamp(16px,2.5vw,36px);flex:1;display:flex;flex-direction:column;width:100%;min-width:0}
+.screen{display:none;flex:1;flex-direction:column;width:100%;min-width:0;animation:appear .28s ease both}.screen.active{display:flex}
+@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cover{justify-content:center;padding:16px 10px 28px}
+.cover-grid{display:grid;grid-template-columns:minmax(0,1fr) 205px;gap:32px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(67,221,207,.28);border-radius:999px;background:rgba(67,221,207,.08);color:var(--teal);font-size:10px;font-weight:950;letter-spacing:.13em}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 14px rgba(67,221,207,.8)}
+h1{margin:22px 0 12px;font-size:clamp(48px,8vw,88px);line-height:.91;letter-spacing:-.065em}
+h1 span{display:block;color:var(--teal)}
+.lead{max-width:690px;color:#c7d4e3;font-size:clamp(16px,2vw,19px);line-height:1.7;margin:0}
+.meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}.meta span{border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.025)}
+.coin{width:178px;aspect-ratio:1;border-radius:36px;border:1px solid rgba(255,210,122,.25);background:linear-gradient(145deg,#213b5c,#102039);display:grid;place-items:center;box-shadow:inset 0 1px rgba(255,255,255,.07),0 18px 40px rgba(0,0,0,.22);transform:rotate(3deg)}
+.coin strong{display:block;font-size:74px;line-height:1;text-align:center;color:var(--gold)}.coin small{display:block;margin-top:8px;text-align:center;color:var(--teal);font-weight:950;letter-spacing:.18em;font-size:11px}
+.primary,.start,.next{border:0;border-radius:13px;padding:14px 19px;font-weight:950;transition:transform .18s ease,filter .18s ease}
+.start{margin-top:28px;background:var(--teal);color:var(--teal-dark);box-shadow:0 9px 28px rgba(67,221,207,.15)}
+.primary{background:var(--gold);color:#2a210f}.next{background:var(--teal);color:var(--teal-dark)}
+.start:hover,.primary:hover,.next:hover,.secondary:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.rules{justify-content:center}.section-kicker{color:var(--teal);font-size:11px;font-weight:950;letter-spacing:.15em}
+.rule-title{font-size:clamp(27px,4.6vw,43px);line-height:1.05;letter-spacing:-.045em;margin:14px 0 22px}
+.rule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:24px}
+.rule{border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,rgba(23,41,68,.88),rgba(17,31,53,.9));padding:17px;min-height:125px}
+.rule b{display:block;color:var(--gold);font-size:11px;letter-spacing:.12em;margin-bottom:9px}.rule p{margin:0;color:#c6d3e2;font-size:14px;line-height:1.55}
+.quiz{gap:0;min-width:0}.quiz-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0 0 14px}
+.quiz-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;width:100%;min-width:0;align-items:start}
+.quiz-prompt,.quiz-answer-panel{min-width:0;width:100%}
+.quiz-answer-panel{display:flex;flex-direction:column;gap:0}
+.question-body{display:grid;gap:12px;width:100%;min-width:0}
+#feedbackArea{width:100%;min-width:0}
+.tag{border:1px solid rgba(67,221,207,.25);background:rgba(67,221,207,.08);color:var(--teal);border-radius:999px;padding:8px 12px;font-size:10px;font-weight:950;letter-spacing:.12em}
+.qcount{font-size:12px;color:var(--muted);font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+.progress{height:7px;border-radius:99px;background:#1a2a43;overflow:hidden;margin-bottom:18px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),#9af0e7,var(--gold));transition:width .28s ease}
+.statsline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 16px;color:var(--muted);font-size:12px}.statsline strong{color:var(--text);font-variant-numeric:tabular-nums}
+.question-card{border:1px solid var(--line);border-radius:var(--radius);padding:clamp(19px,3.4vw,30px);background:linear-gradient(145deg,rgba(27,49,79,.94),rgba(16,31,53,.97));box-shadow:0 15px 38px rgba(0,0,0,.14)}
+.question-label{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.15em;margin-bottom:13px}.question-stem{margin:0;color:#f4f7fb;font-size:clamp(18px,2.5vw,24px);line-height:1.55;font-weight:730;letter-spacing:-.015em}
+.instruction{margin:18px 0 12px;color:var(--muted);font-size:13px;line-height:1.5}
+.question-body{display:grid;gap:12px}
+.tf-item{border:1px solid var(--line);background:rgba(17,31,53,.8);border-radius:16px;padding:15px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:13px;align-items:center}
+.tf-copy{display:flex;gap:12px;align-items:flex-start;min-width:0}.letter{flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:rgba(255,210,122,.11);border:1px solid rgba(255,210,122,.2);color:var(--gold);font-size:12px;font-weight:950}.tf-text{margin:2px 0 0;line-height:1.55;color:#e4ebf3;font-size:14px}
+.tf-actions{display:flex;gap:7px}.choice-btn{min-width:82px;padding:10px 11px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:12px;font-weight:900;transition:.16s}.choice-btn.true:hover{border-color:rgba(105,230,165,.65);background:rgba(105,230,165,.1)}.choice-btn.false:hover{border-color:rgba(255,120,129,.65);background:rgba(255,120,129,.1)}
+.tf-item.answered-correct{border-color:rgba(105,230,165,.37)}.tf-item.answered-wrong{border-color:rgba(255,120,129,.4)}.tf-item .choice-btn.selected{opacity:1}.tf-item .choice-btn:disabled{cursor:default;opacity:.35}.tf-item .choice-btn.selected.correct-pick{border-color:rgba(105,230,165,.65);background:rgba(105,230,165,.12);color:var(--green);opacity:1}.tf-item .choice-btn.selected.wrong-pick{border-color:rgba(255,120,129,.6);background:rgba(255,120,129,.12);color:var(--red);opacity:1}
+.statement-feedback{grid-column:1/-1;margin:0 0 0 42px;padding:12px 13px;border-radius:12px;background:rgba(255,255,255,.035);border-left:3px solid var(--line);color:#cbd7e5;font-size:13px;line-height:1.6}.statement-feedback.good{border-left-color:var(--green)}.statement-feedback.bad{border-left-color:var(--red)}.statement-feedback strong{display:block;margin-bottom:4px;color:var(--text);font-size:11px;letter-spacing:.06em}
+.tf-summary{border:1px solid rgba(67,221,207,.27);background:rgba(67,221,207,.07);padding:17px;border-radius:16px}.tf-summary h3{font-size:15px;margin:0 0 7px;color:var(--teal)}.tf-summary p{margin:0;color:#cbd8e6;font-size:13px;line-height:1.6}
+.mc-options{display:grid;grid-template-columns:1fr 1fr;gap:11px}.mc-option{min-height:72px;text-align:left;display:flex;gap:12px;align-items:flex-start;padding:15px;border:1px solid var(--line);border-radius:15px;background:rgba(17,31,53,.88);color:#e8eef6;line-height:1.5;font-size:14px;transition:transform .16s,border-color .16s,background .16s}.mc-option:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(67,221,207,.6);background:rgba(35,68,91,.55)}.mc-option:disabled{cursor:default}.mc-option .letter{width:28px;height:28px}.mc-option.correct-option{border-color:rgba(105,230,165,.6);background:rgba(105,230,165,.1)}.mc-option.wrong-option{border-color:rgba(255,120,129,.55);background:rgba(255,120,129,.08)}.mc-option.muted-option{opacity:.55}
+.feedback{border:1px solid var(--line);border-radius:18px;background:rgba(17,31,53,.92);padding:19px;margin-top:16px}.feedback.good{border-color:rgba(105,230,165,.36)}.feedback.bad{border-color:rgba(255,120,129,.38)}.feedback h3{font-size:19px;margin:0 0 6px}.feedback.good h3{color:var(--green)}.feedback.bad h3{color:var(--red)}.answer-key{font-size:11px;color:var(--gold);font-weight:950;letter-spacing:.08em;margin:0 0 12px}.feedback-intro{color:#d2deeb;font-size:14px;line-height:1.65;margin:0 0 13px}.rationale-list{display:grid;gap:8px}.rationale{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:10px 11px;border-radius:12px;background:rgba(255,255,255,.035);color:#cbd7e5;font-size:13px;line-height:1.58}.rationale .letter{width:27px;height:27px}.rationale.correct-rationale{border:1px solid rgba(105,230,165,.28)}.rationale strong{color:var(--text)}
+.action-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}.secondary{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:#dce6f1;padding:12px 15px;font-weight:850;transition:.18s}
+.quiz-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid rgba(169,184,203,.1);color:var(--muted);font-size:11px}
+.result{justify-content:center}.result-title{margin:14px 0 8px;font-size:clamp(38px,7vw,62px);letter-spacing:-.055em;line-height:1}.result-title span{color:var(--teal)}.result-copy{max-width:760px;color:#cbd8e6;line-height:1.65}
+.score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.stat{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px}.stat strong{display:block;color:var(--teal);font-size:27px;font-variant-numeric:tabular-nums}.stat span{display:block;margin-top:4px;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.1em}
+.review{display:grid;gap:9px;margin-top:18px}.review-title{font-size:16px;margin:12px 0 0}.review-item{display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:12px;color:#ccd7e4}.review-item strong{color:var(--green)}.review-item.wrong strong{color:var(--red)}.review-item small{color:var(--muted)}
+.source{margin-top:auto;padding-top:22px;color:#7f91a7;font-size:10px;line-height:1.6}
+[hidden]{display:none!important}
+/* Landscape/tablet/desktop: keep the long situation on the left and answers on the right. */
+@media (min-width:760px) and (orientation:landscape){
+  .quiz-layout{grid-template-columns:minmax(250px,.78fr) minmax(0,1.22fr);gap:clamp(18px,2.2vw,30px)}
+  .question-card{height:auto}
+  .tf-item{grid-template-columns:minmax(0,1fr) auto}
+}
+@media (min-width:1180px) and (orientation:landscape){
+  .quiz-layout{grid-template-columns:minmax(340px,.72fr) minmax(0,1.28fr);gap:30px}
+  .question-stem{font-size:clamp(21px,1.65vw,28px)}
+}
+@media(max-width:759px){
+  body{padding:0;place-items:stretch}
+  .app{width:100%;min-height:100vh;min-height:100svh;border:0;border-radius:0}
+  header{padding:16px 18px 11px;gap:10px}
+  .brand{font-size:11px;letter-spacing:.12em}
+  .subject{max-width:52%;font-size:10px;line-height:1.45}
+  main{padding:clamp(15px,4vw,22px)}
+  .cover-grid{grid-template-columns:1fr;gap:12px}
+  .coin{width:112px;border-radius:25px;margin-top:14px}
+  .coin strong{font-size:48px}
+  .cover{padding:12px 2px 20px}
+  .rule-grid{grid-template-columns:1fr}
+  .rule{min-height:0}
+  .quiz-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+  .tf-item{grid-template-columns:minmax(0,1fr);gap:10px}
+  .tf-actions{display:flex;padding-left:0;width:100%}
+  .tf-actions .choice-btn{flex:1;min-height:44px}
+  .statement-feedback{margin-left:0}
+  .mc-options{grid-template-columns:1fr}
+  .score-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review-item{grid-template-columns:65px minmax(0,1fr)}
+  .review-item small{grid-column:2}
+  .question-card{padding:clamp(16px,4vw,22px)}
+  .question-stem{font-size:clamp(18px,4.8vw,22px);line-height:1.5;overflow-wrap:anywhere}
+  .quiz-head{align-items:center}
+  .quiz-foot{align-items:flex-start}
+  .source{padding-top:18px}
+}
+@media(max-width:380px){
+  header{padding-inline:14px}
+  main{padding:14px}
+  .tag{font-size:9px;padding:7px 9px}
+  .qcount{font-size:11px}
+  .choice-btn{font-size:11px;padding:10px 7px}
+  .statsline{font-size:11px}
+  .review-item{grid-template-columns:1fr;gap:5px}
+  .review-item small{grid-column:1}
+}
+@media (max-height:520px) and (orientation:landscape){
+  body{padding:0;place-items:stretch}
+  .app{width:100%;min-height:100vh;min-height:100svh;border-radius:0}
+  header{padding:10px 18px 8px}
+  main{padding:12px 18px}
+  .quiz-head{margin-bottom:8px}
+  .progress{margin-bottom:10px}
+  .statsline{margin-bottom:10px}
+  .question-card{padding:15px}
+  .instruction{margin:10px 0}
+  .tf-item{padding:10px}
+  .quiz-foot{margin-top:10px;padding-top:8px}
+}
+
+/* Five-second, lightweight first-load screen. Only opacity/transform are animated. */
+.app-loader{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));background:radial-gradient(circle at 50% 20%,rgba(67,221,207,.15),transparent 38%),radial-gradient(circle at 85% 90%,rgba(255,210,122,.10),transparent 32%),#07101e;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
+.app-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-card{width:min(100%,480px);padding:clamp(24px,5vw,42px);border:1px solid rgba(169,184,203,.18);border-radius:26px;background:linear-gradient(145deg,rgba(27,49,79,.94),rgba(12,24,42,.98));box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center}
+.loader-emblem{width:70px;height:70px;margin:0 auto 20px;display:grid;place-items:center;border-radius:22px;border:1px solid rgba(255,210,122,.36);background:linear-gradient(145deg,#2b4969,#14243d);color:var(--gold);font-size:36px;font-weight:950;box-shadow:0 12px 34px rgba(0,0,0,.2);animation:loaderFloat 1.8s ease-in-out infinite}
+.loader-kicker{color:var(--teal);font-size:10px;font-weight:950;letter-spacing:.15em;line-height:1.6}
+.loader-title{margin-top:10px;color:var(--text);font-size:clamp(30px,7vw,46px);font-weight:950;letter-spacing:-.055em;line-height:1.05}
+.loader-title span{color:var(--teal)}
+.loader-caption{margin:13px 0 22px;color:var(--muted);font-size:14px;line-height:1.5}
+.loader-track{height:9px;width:100%;overflow:hidden;border-radius:99px;background:#22344d;border:1px solid rgba(255,255,255,.06)}
+.loader-track span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--teal),#9af0e7,var(--gold));box-shadow:0 0 18px rgba(67,221,207,.32);transition:width .12s linear}
+.loader-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;color:#91a4bb;font-size:10px;font-weight:900;letter-spacing:.1em}
+.loader-meta strong{color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
+.loader-note{margin-top:24px;color:#6f839d;font-size:9px;font-weight:900;letter-spacing:.17em}
+@keyframes loaderFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* RESPONSIVE PATCH · portrait-safe, landscape-first, desktop-wide. */
+html, body { width:100%; max-width:100%; }
+body { overflow-x:clip; }
+.app, main, .screen, .quiz-layout, .quiz-prompt, .quiz-answer-panel,
+.question-card, .question-body, #feedbackArea, .tf-item, .tf-copy,
+.mc-options, .feedback, .review { min-width:0; max-width:100%; }
+.quiz-layout { grid-template-columns:minmax(0,1fr); }
+.question-stem, .tf-text, .mc-option, .feedback, .rationale,
+.instruction, .source { overflow-wrap:anywhere; word-break:normal; }
+.orientation-hint {
+  display:none; align-items:flex-start; gap:9px; margin:0 0 12px;
+  padding:10px 12px; border:1px solid rgba(67,221,207,.22);
+  border-radius:12px; background:rgba(67,221,207,.06);
+  color:#a9c4d1; font-size:11px; line-height:1.5;
+}
+.orientation-hint span { flex:none; color:var(--teal); font-size:17px; line-height:1; }
+
+/* On touch devices in portrait, never let a desktop-site viewport force two narrow columns. */
+@media (pointer:coarse) and (orientation:portrait) {
+  body { display:block; padding:0; }
+  .app { width:100%; min-height:100vh; min-height:100svh; margin:0; border:0; border-radius:0; }
+  .quiz-layout { display:grid; grid-template-columns:minmax(0,1fr) !important; gap:14px; }
+  .quiz-prompt, .quiz-answer-panel { width:100%; }
+  .question-card { width:100%; padding:clamp(16px,4vw,24px); }
+  .question-stem { font-size:clamp(18px,3.2vw,24px); line-height:1.52; }
+  .tf-item { grid-template-columns:minmax(0,1fr); gap:10px; }
+  .tf-actions { width:100%; }
+  .tf-actions .choice-btn { flex:1; min-height:44px; }
+  .statement-feedback { margin-left:0; }
+  .mc-options { grid-template-columns:minmax(0,1fr); }
+  .orientation-hint { display:flex; }
+}
+
+/* Phone held horizontally: scenario left, answers right, both columns allowed to shrink safely. */
+@media (pointer:coarse) and (orientation:landscape) and (min-width:600px) {
+  body { padding:0; display:block; }
+  .app { width:100%; min-height:100vh; min-height:100svh; margin:0; border:0; border-radius:0; }
+  .quiz-layout { grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr) !important; gap:clamp(12px,2vw,22px); }
+  .question-stem { font-size:clamp(16px,2.1vw,22px); }
+  .tf-item { grid-template-columns:minmax(0,1fr) auto; gap:9px; }
+  .choice-btn { min-width:64px; }
+  .mc-options { grid-template-columns:minmax(0,1fr); }
+  .orientation-hint { display:none; }
+}
+
+/* Laptop and desktop: balanced horizontal composition with readable minimum columns. */
+@media (min-width:900px) and (orientation:landscape) {
+  body { padding:clamp(10px,1.5vw,24px); }
+  .app { width:min(100%,1480px); min-height:min(920px,calc(100svh - 2 * clamp(10px,1.5vw,24px))); }
+  .quiz-layout { grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr) !important; gap:clamp(18px,2.4vw,34px); }
+  .question-stem { font-size:clamp(20px,1.7vw,28px); }
+  .mc-options { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+/* Horizontal loader on wide screens; portrait phones retain a compact vertical loader. */
+@media (min-width:620px) and (orientation:landscape) {
+  .loader-card { display:grid; grid-template-columns:82px minmax(0,1fr); column-gap:22px; row-gap:0; width:min(100%,680px); text-align:left; align-items:center; }
+  .loader-emblem { grid-column:1; grid-row:1 / span 5; width:70px; height:70px; margin:0; }
+  .loader-kicker, .loader-title, .loader-caption, .loader-track, .loader-meta, .loader-note { grid-column:2; }
+  .loader-title { font-size:clamp(32px,4vw,46px); }
+  .loader-caption { margin:10px 0 16px; }
+  .loader-meta { margin-top:10px; }
+  .loader-note { margin-top:15px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .app-loader, .loader-emblem, .screen, .progress span { animation:none !important; transition:none !important; }
+}
+
+</style>
+</head>
+<body>
+<div class="app-loader" id="appLoader" role="status" aria-live="polite" aria-label="Đang tải bài thử thách trong 5 giây">
+  <div class="loader-card">
+    <div class="loader-emblem" aria-hidden="true">₫</div>
+    <div class="loader-kicker">GIÁO DỤC KINH TẾ VÀ PHÁP LUẬT 10</div>
+    <div class="loader-title">GIẢI MÃ <span>THUẾ.</span></div>
+    <p class="loader-caption">Đang chuẩn bị thử thách 10 câu hỏi...</p>
+    <div class="loader-track" role="progressbar" aria-label="Tiến độ tải" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="loaderTrack"><span id="loaderFill"></span></div>
+    <div class="loader-meta"><span id="loaderStatus">ĐANG KHỞI TẠO HỆ THỐNG</span><strong id="loaderPercent">0%</strong></div>
+    <div class="loader-note">VUI LÒNG ĐỢI 5 GIÂY</div>
+  </div>
+</div>
+<noscript><p style="position:fixed;z-index:10001;inset:auto 16px 16px;background:#172944;color:#f4f7fb;padding:14px;border-radius:12px">Vui lòng bật JavaScript để sử dụng bài trắc nghiệm.</p></noscript>
+<div class="app" id="appRoot" aria-hidden="true" inert>
+  <div class="topline" aria-hidden="true"></div>
+  <header>
+    <div class="brand">GIẢI MÃ THUẾ</div>
+    <div class="subject">GIÁO DỤC KINH TẾ VÀ PHÁP LUẬT 10 · BÀI 6</div>
+  </header>
+  <main>
+    <section class="screen cover active" id="welcome" aria-labelledby="mainTitle">
+      <div class="cover-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> THỬ THÁCH KIẾN THỨC · 10 CÂU</div>
+          <h1 id="mainTitle">GIẢI MÃ <span>THUẾ.</span></h1>
+          <p class="lead">Không chỉ nhớ định nghĩa, bạn cần đọc tình huống, phân biệt bản chất của từng loại thuế và suy luận từ hệ quả kinh tế – pháp lý. Mỗi lựa chọn đều có phản hồi và giải thích để bạn hiểu vì sao đúng hoặc sai.</p>
+          <div class="meta"><span>5 câu đúng – sai tình huống</span><span>5 câu nhiều lựa chọn</span><span>Tối đa 10 điểm</span></div>
+          <button class="start" id="goRules" type="button">BẮT ĐẦU THỬ THÁCH <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="coin" aria-label="Biểu tượng đồng tiền và mười câu hỏi"><div><strong>₫</strong><small>10 CÂU</small></div></div>
+      </div>
+      <div class="source">Chủ đề: Thuế · Giáo dục Kinh tế và Pháp luật lớp 10. Nội dung câu hỏi được giữ theo bộ câu hỏi bạn cung cấp; phần giải thích được mở rộng theo hướng phân tích khái niệm, chủ thể và hệ quả.</div>
+    </section>
+
+    <section class="screen rules" id="rules" aria-labelledby="rulesTitle">
+      <div class="section-kicker">CÁCH TÍNH ĐIỂM</div>
+      <h2 class="rule-title" id="rulesTitle">ĐỌC KỸ TÌNH HUỐNG. GIẢI THÍCH ĐƯỢC LÝ DO.</h2>
+      <div class="rule-grid">
+        <article class="rule"><b>01 · 5 CÂU ĐÚNG – SAI</b><p>Mỗi câu có bốn nhận định A, B, C, D. Bạn đánh giá từng nhận định độc lập bằng nút ĐÚNG hoặc SAI.</p></article>
+        <article class="rule"><b>02 · 5 CÂU NHIỀU LỰA CHỌN</b><p>Mỗi câu có bốn phương án. Chọn một phương án chính xác nhất; sau khi chọn, hệ thống phân tích cả bốn phương án.</p></article>
+        <article class="rule"><b>03 · ĐIỂM SỐ CÔNG BẰNG</b><p>Mỗi nhận định đúng – sai đúng được 0,25 điểm. Mỗi câu nhiều lựa chọn đúng được 1 điểm. Tổng tối đa là 10 điểm.</p></article>
+        <article class="rule"><b>04 · PHẢN HỒI NGAY</b><p>Ý đúng và ý sai đều được giải thích. Bạn sẽ thấy đáp án chuẩn, lý do và điểm cần phân biệt trong tình huống.</p></article>
+      </div>
+      <button class="primary" id="startQuiz" type="button">VÀO CÂU 1 <span aria-hidden="true">→</span></button>
+      <div class="source">Lưu ý: 5 câu trắc nghiệm lựa chọn được chọn từ bộ 10 câu bạn gửi là các câu về thuế GTGT, nguồn thu ngân sách, ưu đãi thuế, tính công bằng và độ co giãn tiêu dùng. Các câu có nội dung gần với phần đúng – sai được lược khỏi phiên bản 10 câu để tránh lặp ý.</div>
+    </section>
+
+    <section class="screen quiz" id="quiz" aria-label="Phần làm bài">
+      <div class="orientation-hint" role="note" aria-label="Gợi ý hiển thị">
+        <span aria-hidden="true">↻</span> Xoay ngang điện thoại để xem tình huống và phần trả lời cạnh nhau. Nếu giữ máy dọc, nội dung sẽ tự xếp thành một cột rộng.
+      </div>
+      <div class="quiz-head">
+        <div class="tag" id="topicTag">ĐÚNG – SAI · TÌNH HUỐNG</div>
+        <div class="qcount" id="qCount">CÂU 01 / 10</div>
+      </div>
+      <div class="progress" role="progressbar" aria-label="Tiến độ làm bài" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="progressTrack"><span id="progressBar"></span></div>
+      <div class="statsline"><span id="typeHint">PHẦN I · ĐÚNG – SAI</span><span>Điểm: <strong id="scoreNow">0 / 10</strong></span></div>
+      <div class="quiz-layout">
+        <section class="quiz-prompt" aria-label="Tình huống và câu hỏi">
+          <article class="question-card">
+            <div class="question-label" id="questionLabel">TÌNH HUỐNG</div>
+            <p class="question-stem" id="questionText"></p>
+          </article>
+          <p class="instruction" id="instructionText"></p>
+        </section>
+        <section class="quiz-answer-panel" aria-label="Phần trả lời">
+          <div class="question-body" id="questionBody"></div>
+          <div id="feedbackArea" aria-live="polite"></div>
+        </section>
+      </div>
+      <div class="quiz-foot"><span id="subProgress">Đã hoàn thành 0/10 câu</span><span>Đọc giải thích trước khi sang câu kế tiếp</span></div>
+    </section>
+
+    <section class="screen result" id="result" aria-labelledby="resultTitle">
+      <div class="section-kicker">HOÀN THÀNH THỬ THÁCH</div>
+      <h2 class="result-title" id="resultTitle">KẾT QUẢ <span>CỦA BẠN.</span></h2>
+      <p class="result-copy" id="resultCopy"></p>
+      <div class="score-grid">
+        <div class="stat"><strong id="finalScore">0/10</strong><span>TỔNG ĐIỂM</span></div>
+        <div class="stat"><strong id="tfCorrect">0/20</strong><span>NHẬN ĐỊNH ĐÚNG</span></div>
+        <div class="stat"><strong id="mcCorrect">0/5</strong><span>CÂU LỰA CHỌN ĐÚNG</span></div>
+      </div>
+      <h3 class="review-title">TỔNG KẾT TỪNG CÂU</h3>
+      <div class="review" id="reviewList"></div>
+      <div class="action-row"><button class="secondary" id="restart" type="button">LÀM LẠI TỪ ĐẦU ↻</button></div>
+      <div class="source">Mục tiêu của phần luyện tập là hiểu đúng bản chất của thuế: nguồn thu ngân sách, công cụ điều tiết, nghĩa vụ pháp lý và tác động kinh tế. Kết quả dùng để tự ôn tập, không thay thế đánh giá chính thức của giáo viên.</div>
+    </section>
+  </main>
+</div>
+<script>
+'use strict';
+
+/*
+ * DATA CONTRACT
+ * - kind: 'tf' => một tình huống gồm đúng 4 nhận định A-D.
+ * - kind: 'mc' => một câu có đúng 4 lựa chọn A-D và một đáp án đúng.
+ * - Mỗi nhận định TF có answer (boolean) + why (giải thích riêng).
+ * - Mỗi phương án MC có rationale để giải thích cả phương án đúng và sai.
+ */
+const QUESTIONS = [
+  {
+    id: 'tf-01', kind: 'tf', tag: 'KHÁI NIỆM · ĐẶC ĐIỂM CỦA THUẾ',
+    label: 'TÌNH HUỐNG 01 · NGHĨA VỤ NỘP THUẾ',
+    q: 'Một doanh nghiệp cho rằng thuế là khoản tiền Nhà nước thu để phục vụ lợi ích chung nên doanh nghiệp có quyền từ chối nộp thuế nếu không trực tiếp được hưởng các dịch vụ công tương ứng.',
+    statements: [
+      { text: 'Thuế là khoản đóng góp mang tính tự nguyện của doanh nghiệp.', answer: false,
+        why: 'Sai. Thuế không phải khoản đóng góp tùy tâm hay khoản ủng hộ mà người nộp có thể tự quyết định tham gia. Khi một tổ chức, hộ kinh doanh hoặc cá nhân thuộc đối tượng phải nộp thuế, nghĩa vụ phát sinh theo điều kiện và quy định của pháp luật. Tính bắt buộc là đặc điểm nền tảng phân biệt thuế với khoản quyên góp tự nguyện.' },
+      { text: 'Nghĩa vụ nộp thuế được xác định theo quy định pháp luật.', answer: true,
+        why: 'Đúng. Căn cứ xác định ai phải nộp, nộp loại thuế nào, căn cứ tính thuế và thời hạn thực hiện là quy định pháp luật chứ không phải mong muốn riêng của người nộp thuế. Vì vậy doanh nghiệp không thể tự đặt điều kiện rằng chỉ nộp thuế khi thấy mình đã nhận được một dịch vụ công cụ thể.' },
+      { text: 'Người nộp thuế có quyền yêu cầu Nhà nước hoàn trả đúng số tiền thuế đã đóng dưới hình thức dịch vụ công.', answer: false,
+        why: 'Sai. Thuế không vận hành như một hợp đồng mua dịch vụ theo kiểu đóng bao nhiêu thì được nhận lại một dịch vụ có giá trị đúng bằng bấy nhiêu. Nguồn thu thuế được tập trung vào ngân sách để phân bổ cho nhiều nhiệm vụ và lợi ích chung; mỗi người có thể thụ hưởng trực tiếp hoặc gián tiếp, ở thời điểm và mức độ khác nhau.' },
+      { text: 'Thuế có tính bắt buộc và không mang tính hoàn trả trực tiếp.', answer: true,
+        why: 'Đúng. “Không hoàn trả trực tiếp” nghĩa là người nộp thuế không được đối chiếu khoản thuế mình đã đóng với một dịch vụ riêng biệt có giá trị tương đương để đòi hoàn lại. Điều đó không có nghĩa người dân không được hưởng lợi: ngân sách thuế vẫn góp phần duy trì hạ tầng, giáo dục, y tế, an sinh, quốc phòng và các hoạt động công.' }
+    ]
+  },
+  {
+    id: 'tf-02', kind: 'tf', tag: 'VAI TRÒ · ĐIỀU TIẾT TIÊU DÙNG · TÁC ĐỘNG THỊ TRƯỜNG',
+    label: 'TÌNH HUỐNG 02 · THUẾ TIÊU THỤ ĐẶC BIỆT',
+    q: 'Nhà nước tăng thuế tiêu thụ đặc biệt đối với mặt hàng X nhằm hạn chế tiêu dùng. Sau điều chỉnh, doanh nghiệp bán mặt hàng này vẫn kê khai, nộp thuế theo quy định; giá bán tăng, lượng tiêu thụ chỉ giảm nhẹ và một bộ phận người mua tiếp tục mua. Có ý kiến cho rằng kết quả đó chứng minh thuế chỉ tạo nguồn thu, chứ không thực hiện được vai trò điều tiết.',
+    statements: [
+      { text: 'Việc thay đổi thuế suất làm thay đổi tương quan giá và lợi ích giữa mặt hàng X với các lựa chọn thay thế, qua đó có thể tác động đồng thời đến quyết định mua của người tiêu dùng và quyết định cung ứng của doanh nghiệp.', answer: true,
+        why: 'Đúng. Thuế tiêu thụ đặc biệt không chỉ là khoản thu ngân sách mà còn có thể làm thay đổi chi phí và giá tương đối của mặt hàng chịu thuế. Khi giá hoặc lợi ích kinh tế thay đổi, người mua có thể giảm lượng mua hay chuyển sang lựa chọn khác; doanh nghiệp cũng có thể điều chỉnh sản lượng, giá bán hoặc cơ cấu kinh doanh. Đây là cơ chế thể hiện vai trò điều tiết sản xuất và tiêu dùng của thuế, dù mức độ tác động không giống nhau ở mọi thị trường.' },
+      { text: 'Do doanh nghiệp là chủ thể có trách nhiệm kê khai và nộp khoản thuế theo quy định, người mua không thể phải gánh chịu bất kỳ phần chi phí kinh tế nào phát sinh từ việc tăng thuế.', answer: false,
+        why: 'Sai. Nhận định đã đồng nhất chủ thể thực hiện nghĩa vụ pháp lý với chủ thể chịu gánh nặng kinh tế. Doanh nghiệp có thể là bên kê khai, nộp thuế nhưng vẫn điều chỉnh giá bán, khiến người mua chịu một phần hoặc phần lớn khoản thuế thông qua giá. Mức chuyển gánh nặng phụ thuộc vào cung, cầu, cạnh tranh và khả năng thay thế; không thể chỉ nhìn tên người nộp thuế để kết luận ai chịu chi phí cuối cùng.' },
+      { text: 'Lượng tiêu thụ giảm nhẹ phù hợp với khả năng thuế đã tác động đến lựa chọn mua, nhưng chỉ so sánh số liệu trước và sau điều chỉnh chưa đủ chứng minh toàn bộ mức giảm là do thuế vì thu nhập, thị hiếu và giá hàng thay thế cũng có thể biến động.', answer: true,
+        why: 'Đúng. Diễn biến lượng tiêu thụ giảm là dấu hiệu phù hợp với cơ chế điều tiết thông qua giá, nhưng không tự nó chứng minh quan hệ nhân quả đầy đủ. Muốn đánh giá tác động riêng của chính sách, cần xem xét thêm những yếu tố thay đổi cùng thời điểm như thu nhập, mùa vụ, thị hiếu, nguồn cung và giá sản phẩm thay thế. Cách suy luận này tránh hai cực đoan: phủ nhận hoàn toàn vai trò của thuế hoặc quy mọi biến động cho riêng chính sách thuế.' },
+      { text: 'Vì người tiêu dùng vẫn tiếp tục mua một phần mặt hàng X sau khi tăng thuế, có thể kết luận chính sách chỉ làm phát sinh thêm tiền thu ngân sách và không hề tác động đến hành vi tiêu dùng.', answer: false,
+        why: 'Sai. Việc lượng mua chưa giảm về không không chứng minh rằng hành vi không thay đổi. Một chính sách điều tiết có thể làm lượng tiêu thụ giảm một phần, làm chậm tốc độ tăng hoặc khiến một nhóm người mua chuyển sang sản phẩm khác mà không khiến tất cả dừng mua. Muốn kết luận chính sách có tác động hay không phải xem mức thay đổi so với tình huống phù hợp và các yếu tố liên quan, chứ không đặt điều kiện thành công tuyệt đối là mọi người phải ngừng tiêu dùng.' }
+    ]
+  },
+  {
+    id: 'tf-03', kind: 'tf', tag: 'NGHĨA VỤ THUẾ · KÊ KHAI · XÁC ĐỊNH TRÁCH NHIỆM',
+    label: 'TÌNH HUỐNG 03 · DOANH THU BỊ CHE GIẤU',
+    q: 'Một cửa hàng có doanh thu thực tế cao hơn số đã kê khai. Chủ cửa hàng cố ý ghi nhận thiếu một phần doanh thu để giảm số thuế phải nộp, nhưng vẫn nộp thuế đúng hạn trên phần doanh thu đã khai. Chủ cửa hàng lập luận rằng việc đã nộp một khoản thuế chứng tỏ mình không vi phạm và cửa hàng nhỏ không phải chịu nghĩa vụ như doanh nghiệp lớn.',
+    statements: [
+      { text: 'Việc nộp thuế trên phần doanh thu đã kê khai không làm hợp pháp hóa phần doanh thu thuộc diện phải kê khai nhưng bị cố ý bỏ sót; hành vi này vẫn có dấu hiệu vi phạm nghĩa vụ kê khai thuế.', answer: true,
+        why: 'Đúng. Nghĩa vụ thuế phải được xác định trên căn cứ thuộc diện kê khai theo quy định, không chỉ trên con số mà người kinh doanh tự ghi vào tờ khai. Nếu chủ thể cố ý bỏ ngoài sổ sách doanh thu phải kê khai để làm giảm số thuế phải nộp, việc nộp đúng hạn trên phần đã khai không xóa đi sai lệch của phần bị che giấu. Cần phân biệt hoàn thành một phần nghĩa vụ với thực hiện đầy đủ, trung thực toàn bộ nghĩa vụ.' },
+      { text: 'Vì cửa hàng không phải doanh nghiệp lớn hoặc không có quy mô hoạt động tương đương công ty, chủ cửa hàng và hộ kinh doanh mặc nhiên không thuộc nhóm chủ thể có thể phát sinh nghĩa vụ thuế.', answer: false,
+        why: 'Sai. Nghĩa vụ thuế không được xác định đơn giản bằng việc chủ thể có quy mô lớn hay có tên gọi là công ty. Cá nhân, hộ kinh doanh và tổ chức có thể phát sinh nghĩa vụ khi hoạt động, thu nhập hoặc giao dịch của họ đáp ứng điều kiện do pháp luật quy định. Quy mô nhỏ không tự tạo ra quyền miễn thuế; cần xác định đúng loại thuế, ngưỡng, căn cứ tính và quy định áp dụng cho từng chủ thể.' },
+      { text: 'Tình huống đủ để nhận diện dấu hiệu che giấu doanh thu nhằm giảm nghĩa vụ thuế, nhưng việc xác định chính xác hành vi và trách nhiệm cụ thể vẫn phải dựa trên chứng cứ, yếu tố cố ý, phương thức thực hiện và quy định pháp luật có liên quan.', answer: true,
+        why: 'Đúng. Dữ kiện “cố ý ghi nhận thấp hơn doanh thu thực tế để giảm thuế” cho thấy dấu hiệu cần được xem xét về hành vi trốn thuế hoặc vi phạm nghĩa vụ kê khai. Tuy nhiên, nhận diện dấu hiệu trong bài tập không đồng nghĩa tự đưa ra kết luận pháp lý cuối cùng. Cơ quan có thẩm quyền phải kiểm tra hồ sơ, chứng từ, kỳ tính thuế, số tiền liên quan, cách thức thực hiện và các yếu tố luật định trước khi xác định loại trách nhiệm.' },
+      { text: 'Nếu cửa hàng vẫn nộp một phần thuế và chỉ bỏ sót một phần doanh thu, phần sai lệch đó đương nhiên chỉ là lỗi kế toán, không thể bị xem xét như hành vi vi phạm nghĩa vụ thuế.', answer: false,
+        why: 'Sai. Không có nguyên tắc rằng chỉ che giấu toàn bộ doanh thu mới bị xem xét hoặc việc nộp một phần thuế sẽ biến phần che giấu thành lỗi kế toán vô hại. Cần xem xét bản chất sai lệch, tính chủ ý và quy định áp dụng. Một phần doanh thu bị cố tình loại khỏi hồ sơ vẫn có thể làm giảm số thuế phải nộp và là căn cứ để cơ quan có thẩm quyền xem xét trách nhiệm.' }
+    ]
+  },
+  {
+    id: 'tf-04', kind: 'tf', tag: 'THUẾ THU NHẬP CÁ NHÂN · LŨY TIẾN TỪNG PHẦN · ĐIỀU TIẾT',
+    label: 'TÌNH HUỐNG 04 · NGƯỠNG THUẾ VÀ THU NHẬP SAU THUẾ',
+    q: 'Thuế thu nhập cá nhân được áp dụng theo biểu thuế suất lũy tiến từng phần. Một người lao động vừa được tăng thu nhập khiến một phần thu nhập tính thuế vượt sang bậc cao hơn. Người này cho rằng từ thời điểm vượt ngưỡng, toàn bộ thu nhập tính thuế sẽ chịu mức thuế suất mới, nên chỉ cần tăng lương một chút là số tiền thực nhận có thể giảm.',
+    statements: [
+      { text: 'Khi thu nhập tính thuế vượt sang bậc cao hơn, phần thu nhập nằm trong bậc mới chịu mức thuế suất của bậc đó; các phần thu nhập thuộc bậc thấp hơn vẫn được tính theo mức tương ứng của từng bậc.', answer: true,
+        why: 'Đúng. Đây chính là ý nghĩa của cụm “lũy tiến từng phần”: thu nhập tính thuế được chia thành các phần theo ngưỡng của biểu thuế, rồi áp dụng thuế suất tương ứng cho từng phần. Việc một phần thu nhập vượt ngưỡng không làm toàn bộ phần thu nhập trước đó bị chuyển sang mức thuế suất cao hơn. Muốn tính số thuế phải nộp phải cộng nghĩa vụ của các phần thu nhập trong từng bậc.' },
+      { text: 'Một khi xuất hiện phần thu nhập thuộc bậc thuế cao hơn, toàn bộ thu nhập tính thuế sẽ lập tức chịu mức thuế suất biên mới; vì thế riêng việc chuyển bậc có thể khiến tiền lương sau thuế giảm dù thu nhập trước thuế tăng.', answer: false,
+        why: 'Sai. Nhận định đã nhầm thuế suất áp dụng cho phần thu nhập tăng thêm với thuế suất áp dụng cho toàn bộ thu nhập. Trong cơ chế lũy tiến từng phần, chỉ phần nằm ở bậc cao hơn chịu mức cao hơn; các phần trước đó không bị tính lại theo mức mới. Vì vậy, riêng việc vượt ngưỡng thuế không làm cho toàn bộ thu nhập sau thuế giảm; số thuế tăng thêm chỉ áp dụng cho phần thu nhập chịu mức thuế suất của bậc mới.' },
+      { text: 'Chỉ biết mức lương trước giảm trừ và bậc thuế suất cao nhất chưa đủ để xác định chính xác số thuế phải nộp; còn phải xác định thu nhập tính thuế sau các khoản giảm trừ và tính riêng từng phần theo biểu thuế.', answer: true,
+        why: 'Đúng. Thuế không nhất thiết được tính trực tiếp trên toàn bộ số tiền lương danh nghĩa. Trước hết phải xác định thu nhập thuộc diện tính thuế và các khoản giảm trừ được phép áp dụng; sau đó mới phân bổ thu nhập tính thuế vào từng bậc. Chỉ nhìn mức thuế suất cao nhất có thể dẫn đến ước tính sai đáng kể vì không cho biết phần thu nhập nào nằm ở từng bậc và phần nào được giảm trừ.' },
+      { text: 'Biểu thuế lũy tiến từng phần có thể hỗ trợ điều tiết thu nhập sau thuế, nhưng mức độ công bằng còn phụ thuộc vào ngưỡng chịu thuế, khoảng cách giữa các bậc, khoản giảm trừ và cách sử dụng nguồn thu ngân sách.', answer: true,
+        why: 'Đúng. Thuế suất tăng theo từng phần thu nhập là một công cụ có thể làm nghĩa vụ thuế tăng theo khả năng nộp thuế, qua đó hỗ trợ mục tiêu điều tiết và công bằng xã hội. Tuy nhiên, chỉ có biểu thuế lũy tiến không tự động bảo đảm công bằng trong mọi trường hợp. Còn phải xét ngưỡng, mức thuế, phạm vi thu nhập chịu thuế, miễn giảm và việc nguồn thu được phân bổ cho các dịch vụ công, an sinh như thế nào.' }
+    ]
+  },
+  {
+    id: 'tf-05', kind: 'tf', tag: 'THUẾ NHẬP KHẨU · BẢO HỘ · CHI PHÍ SẢN XUẤT',
+    label: 'TÌNH HUỐNG 05 · TÁC ĐỘNG NHIỀU CHIỀU CỦA THUẾ NHẬP KHẨU',
+    q: 'Một doanh nghiệp nhập khẩu thành phẩm X đang cạnh tranh với sản phẩm tương tự được sản xuất trong nước. Một số nhà sản xuất nội địa lại sử dụng linh kiện nhập khẩu làm đầu vào. Khi Nhà nước điều chỉnh thuế nhập khẩu đối với X và một số nhóm hàng liên quan, doanh nghiệp cho rằng chính sách này chỉ nhằm tăng thu ngân sách, không ảnh hưởng đến sản xuất trong nước.',
+    statements: [
+      { text: 'Nếu hàng X nhập khẩu cạnh tranh trực tiếp với sản phẩm nội địa có khả năng thay thế, việc tăng thuế nhập khẩu có thể làm thay đổi tương quan giá và tạo thêm lợi thế cạnh tranh cho nhà sản xuất trong nước.', answer: true,
+        why: 'Đúng. Thuế nhập khẩu có thể làm tăng chi phí đưa hàng hóa từ nước ngoài vào thị trường, từ đó khiến giá tương đối của hàng nhập khẩu thay đổi so với sản phẩm nội địa. Nếu trong nước có sản phẩm thay thế đủ khả năng đáp ứng nhu cầu, nhà sản xuất nội địa có thể có thêm dư địa cạnh tranh. Tuy nhiên, đây là tác động có điều kiện, không phải sự bảo đảm rằng mọi doanh nghiệp trong nước đều bán được hàng hoặc nâng cao năng lực sản xuất.' },
+      { text: 'Vì doanh nghiệp nhập khẩu là chủ thể thực hiện nghĩa vụ nộp thuế tại khâu nhập khẩu, khoản thuế không thể được phản ánh vào giá bán hoặc phân chia thành chi phí giữa doanh nghiệp, nhà cung cấp và người mua.', answer: false,
+        why: 'Sai. Chủ thể có nghĩa vụ nộp thuế theo quy định không nhất thiết phải tự gánh toàn bộ chi phí kinh tế cuối cùng. Doanh nghiệp nhập khẩu có thể điều chỉnh giá bán, thương lượng lại giá với nhà cung cấp hoặc chấp nhận giảm biên lợi nhuận; mức độ chuyển gánh nặng tùy thuộc cạnh tranh và độ co giãn cung – cầu. Vì vậy, không thể kết luận thuế luôn nằm trọn ở phía người nhập khẩu chỉ từ quy định về người nộp thuế.' },
+      { text: 'Thuế nhập khẩu có thể tạo lợi thế cho nhà sản xuất thành phẩm trong nước, đồng thời làm tăng chi phí của doanh nghiệp nội địa đang phụ thuộc vào linh kiện hoặc nguyên liệu nhập khẩu thuộc diện chịu thuế.', answer: true,
+        why: 'Đúng. Cùng một chính sách thuế có thể tác động khác nhau đến các khâu của chuỗi sản xuất. Nhà sản xuất thành phẩm cạnh tranh với hàng nhập khẩu có thể được lợi từ mức bảo hộ cao hơn; nhưng doanh nghiệp trong nước nhập linh kiện, máy móc hoặc nguyên liệu chịu thuế lại có thể phải mua đầu vào đắt hơn. Vì vậy phải đánh giá cả lợi ích bảo hộ lẫn chi phí đầu vào, thay vì cho rằng mọi nhà sản xuất nội địa đều hưởng lợi như nhau.' },
+      { text: 'Một khi hàng hóa được gọi chung là mặt hàng X, mọi lô hàng nhập khẩu của mặt hàng đó đương nhiên chịu cùng một mức thuế, không phụ thuộc mã phân loại, xuất xứ hay điều kiện ưu đãi được áp dụng.', answer: false,
+        why: 'Sai. Mức thuế áp dụng có thể phụ thuộc vào mã phân loại hàng hóa, xuất xứ, biểu thuế, cam kết thương mại và điều kiện để được hưởng mức ưu đãi hoặc miễn giảm. Tên gọi thương mại thông thường chưa đủ để xác định chính xác thuế suất. Vì vậy không thể suy ra mọi lô hàng cùng tên đều có nghĩa vụ thuế giống hệt nhau nếu chưa xem các căn cứ pháp lý và hồ sơ liên quan.' }
+    ]
+  },
+  {
+    id: 'mc-06', kind: 'mc', tag: 'THUẾ GIÁ TRỊ GIA TĂNG · NGƯỜI NỘP VÀ NGƯỜI CHỊU THUẾ',
+    label: 'CÂU HỎI 06 · PHÂN BIỆT CHỦ THỂ',
+    q: 'Một người mua chiếc điện thoại có giá niêm yết đã bao gồm thuế giá trị gia tăng (GTGT). Người bán là chủ thể kê khai và nộp thuế GTGT theo quy định. Nhận định nào chính xác nhất?',
+    options: [
+      { text: 'Người mua và người bán đều không có nghĩa vụ liên quan đến thuế GTGT.', rationale: 'Không chính xác. Người bán có nghĩa vụ kê khai, nộp thuế theo quy định; người mua thường chịu phần thuế được phản ánh trong giá hàng hóa. Hai chủ thể có vị trí khác nhau chứ không phải đều không liên quan.' },
+      { text: 'Người mua là người trực tiếp kê khai và nộp thuế GTGT cho Nhà nước trong mọi trường hợp.', rationale: 'Không chính xác. Trong giao dịch bán hàng thông thường, cơ sở kinh doanh thực hiện kê khai và nộp thuế GTGT theo quy định. Người mua cuối cùng thường chịu thuế về mặt kinh tế thông qua giá, không phải trực tiếp đứng ra kê khai, nộp thay người bán trong mọi trường hợp.' },
+      { text: 'Người bán thực hiện nghĩa vụ kê khai, nộp thuế; người mua thường là người chịu thuế thông qua giá hàng hóa.', rationale: 'Chính xác. Cần phân biệt người có trách nhiệm kê khai, nộp thuế theo luật với người thực tế gánh chịu chi phí thuế. Với thuế GTGT trong tiêu dùng thông thường, cơ sở kinh doanh kê khai và nộp; khoản thuế thường được tính trong giá bán nên người tiêu dùng cuối cùng chịu thuế về mặt kinh tế.' },
+      { text: 'Vì người mua chịu thuế nên người bán không cần thực hiện nghĩa vụ thuế.', rationale: 'Không chính xác. Việc người mua thường chịu gánh nặng kinh tế không xóa bỏ trách nhiệm pháp lý của người bán. Người bán vẫn phải thực hiện việc lập hóa đơn, kê khai và nộp thuế theo các quy định áp dụng.' }
+    ], answer: 2,
+    explanation: 'Điểm mấu chốt là phân biệt “người nộp thuế theo quy định pháp luật” với “người chịu thuế về mặt kinh tế”. Hai khái niệm này có thể thuộc về hai chủ thể khác nhau. Trong ví dụ bán điện thoại cho người tiêu dùng, người bán thực hiện kê khai, nộp thuế GTGT; người mua thường gánh khoản thuế thông qua giá thanh toán.'
+  },
+  {
+    id: 'mc-07', kind: 'mc', tag: 'NGÂN SÁCH NHÀ NƯỚC · TÍNH ỔN ĐỊNH CỦA NGUỒN THU',
+    label: 'CÂU HỎI 07 · SUY LUẬN HỆ QUẢ',
+    q: 'Nếu Nhà nước hoàn toàn xóa bỏ thuế và chỉ sử dụng các khoản đóng góp tự nguyện để duy trì ngân sách, hậu quả nào có khả năng xảy ra nghiêm trọng nhất?',
+    options: [
+      { text: 'Nguồn thu ngân sách trở nên ổn định và có tính dự đoán cao hơn.', rationale: 'Không chính xác. Đóng góp tự nguyện phụ thuộc vào lựa chọn, khả năng và mức độ sẵn lòng của từng người. Vì không có nghĩa vụ bắt buộc chung, quy mô nguồn thu có thể biến động và khó dự đoán hơn.' },
+      { text: 'Nhà nước gặp khó khăn trong việc bảo đảm nguồn lực thường xuyên để thực hiện các chức năng công cộng.', rationale: 'Chính xác. Các nhiệm vụ công như giáo dục, y tế, hạ tầng, an sinh, quốc phòng và quản lý nhà nước cần nguồn lực liên tục. Nếu chỉ trông chờ vào đóng góp tự nguyện, nguồn tiền có thể không đủ hoặc không đều để duy trì các nhiệm vụ đó.' },
+      { text: 'Mọi doanh nghiệp đều tự động tăng năng suất lao động.', rationale: 'Không chính xác. Việc thay đổi cách huy động ngân sách không làm năng suất của mọi doanh nghiệp tự động tăng. Năng suất phụ thuộc vào công nghệ, vốn, kỹ năng lao động, quản trị, thị trường và nhiều yếu tố khác.' },
+      { text: 'Khoảng cách thu nhập trong xã hội chắc chắn biến mất.', rationale: 'Không chính xác. Xóa bỏ thuế không tự động xóa bỏ chênh lệch thu nhập. Thậm chí, nếu nguồn lực công dành cho giáo dục, y tế và an sinh bị thiếu hụt, khả năng hỗ trợ cơ hội và điều tiết xã hội có thể bị ảnh hưởng.' }
+    ], answer: 1,
+    explanation: 'Thuế là nguồn thu quan trọng và có tính bắt buộc theo pháp luật, giúp Nhà nước lập kế hoạch ngân sách để duy trì những dịch vụ và nhiệm vụ công cộng. Đóng góp tự nguyện có thể bổ sung nguồn lực nhưng khó thay thế hoàn toàn nguồn thu thường xuyên vì mức đóng góp phụ thuộc vào quyết định riêng của từng cá nhân, tổ chức.'
+  },
+  {
+    id: 'mc-08', kind: 'mc', tag: 'CHÍNH SÁCH THUẾ · ĐỊNH HƯỚNG ĐẦU TƯ',
+    label: 'CÂU HỎI 08 · VAI TRÒ ĐIỀU TIẾT KINH TẾ',
+    q: 'Nhà nước giảm thuế thu nhập doanh nghiệp cho một số ngành nghề thuộc lĩnh vực ưu tiên phát triển. Chính sách này thể hiện rõ nhất vai trò nào của thuế?',
+    options: [
+      { text: 'Xóa bỏ hoàn toàn sự cạnh tranh giữa các doanh nghiệp.', rationale: 'Không chính xác. Ưu đãi thuế không làm cho cạnh tranh biến mất. Các doanh nghiệp vẫn cạnh tranh về giá, chất lượng, công nghệ, thị trường và năng lực quản trị; chính sách chỉ thay đổi một phần điều kiện kinh doanh.' },
+      { text: 'Điều tiết hoạt động sản xuất, kinh doanh và định hướng đầu tư.', rationale: 'Chính xác. Khi giảm nghĩa vụ thuế cho lĩnh vực ưu tiên, Nhà nước có thể làm tăng động lực đầu tư vào lĩnh vực đó. Chính sách thuế vì vậy tác động đến lựa chọn sản xuất, kinh doanh và phân bổ nguồn lực của doanh nghiệp.' },
+      { text: 'Thay thế hoàn toàn cơ chế thị trường.', rationale: 'Không chính xác. Ưu đãi thuế không thay thế cơ chế thị trường. Doanh nghiệp vẫn tự quyết định đầu tư và chịu tác động của cung – cầu, giá cả và cạnh tranh; Nhà nước dùng chính sách thuế để định hướng trong khuôn khổ nền kinh tế.' },
+      { text: 'Bảo đảm mọi doanh nghiệp có lợi nhuận ngang nhau.', rationale: 'Không chính xác. Ưu đãi thuế không bảo đảm các doanh nghiệp có cùng lợi nhuận. Kết quả kinh doanh còn phụ thuộc vào chi phí, doanh thu, năng suất, chất lượng sản phẩm, năng lực quản lý và tình hình thị trường.' }
+    ], answer: 1,
+    explanation: 'Ưu đãi thuế làm thay đổi chi phí sau thuế và có thể khiến một lĩnh vực trở nên hấp dẫn hơn đối với nhà đầu tư. Qua đó, Nhà nước sử dụng thuế để định hướng nguồn lực vào ngành nghề ưu tiên. Đây là sự điều tiết và khuyến khích có mục tiêu, không phải xóa bỏ cạnh tranh hay thay thế hoàn toàn thị trường.'
+  },
+  {
+    id: 'mc-09', kind: 'mc', tag: 'THUẾ TRỰC THU · THUẾ GIÁN THU · GÁNH NẶNG THỰC TẾ',
+    label: 'CÂU HỎI 09 · PHÂN TÍCH DỮ KIỆN VÀ TỶ TRỌNG GÁNH NẶNG',
+    q: 'Xét trong một tháng và chỉ riêng một sắc thuế gián thu: hộ A có thu nhập 12 triệu đồng và mua nhóm hàng chịu thuế với giá trị trước thuế 9 triệu đồng; hộ B có thu nhập 48 triệu đồng và mua cùng nhóm hàng với giá trị trước thuế 24 triệu đồng. Thuế suất là 10% tính trên giá trị trước thuế và giả sử toàn bộ khoản thuế được chuyển vào giá bán. Một bạn lập luận rằng cùng thuế suất 10% đồng nghĩa gánh nặng tương đối bằng nhau, rồi suy ra thuế trực thu luôn công bằng hơn thuế gián thu. Đánh giá nào chính xác nhất?',
+    options: [
+      { text: 'Hộ B chịu 2,4 triệu đồng, cao hơn 0,9 triệu đồng của hộ A; vì số tiền tuyệt đối lớn hơn nên B chịu tỷ lệ gánh nặng cao hơn. Cùng thuế suất 10% cũng là căn cứ đủ để xem cách phân bổ này công bằng giữa hai hộ, không cần đối chiếu thu nhập.', rationale: 'Không chính xác. Phương án chỉ so sánh số tiền tuyệt đối mà bỏ qua quy mô thu nhập của từng hộ. Hộ B trả nhiều tiền thuế hơn về giá trị tuyệt đối, nhưng khoản đó chiếm tỷ trọng nhỏ hơn trong thu nhập của B. Đánh giá gánh nặng tương đối cần đặt số thuế trong mối quan hệ với thu nhập hoặc khả năng chi trả, không thể chỉ dựa vào số tiền danh nghĩa hay việc hai hộ cùng chịu một thuế suất trên giá hàng.' },
+      { text: 'Hộ A chịu 0,9 triệu đồng, tương đương 7,5% thu nhập; hộ B chịu 2,4 triệu đồng, tương đương 5%. Trong mô hình này, thuế chiếm tỷ trọng thu nhập lớn hơn ở A, nhưng dữ kiện chưa đủ để kết luận mọi thuế gián thu bất công hoặc thuế trực thu luôn công bằng hơn.', rationale: 'Chính xác. Tiền thuế của A là 9 triệu × 10% = 0,9 triệu đồng; so với thu nhập 12 triệu, tỷ trọng là 7,5%. Tiền thuế của B là 24 triệu × 10% = 2,4 triệu đồng; so với thu nhập 48 triệu, tỷ trọng là 5%. Như vậy B nộp nhiều hơn về số tiền tuyệt đối nhưng A chịu gánh nặng lớn hơn nếu đo theo tỷ lệ thu nhập. Kết quả chỉ phản ánh sắc thuế và giả định trong tình huống, chưa đủ để xếp hạng toàn bộ hệ thống thuế trực thu – gián thu.' },
+      { text: 'Mức 10% được tính trên giá trị hàng hóa trước thuế nên có thể xem đó cũng là tỷ lệ thuế trên thu nhập của từng hộ. Vì cùng mua hàng chịu một mức thuế suất, cả A và B đều dành một tỷ lệ thu nhập như nhau để thực hiện nghĩa vụ thuế.', rationale: 'Không chính xác. Thuế suất 10% trong tình huống được tính trên giá trị hàng hóa trước thuế, không phải trên tổng thu nhập của hộ gia đình. Tỷ lệ thu nhập bị chiếm bởi thuế còn phụ thuộc mỗi hộ mua bao nhiêu hàng chịu thuế so với thu nhập của mình. Vì mức chi tiêu chịu thuế của A và B có tỷ trọng khác nhau, không thể suy ra hai hộ cùng chịu một tỷ lệ gánh nặng thu nhập chỉ vì mức thuế suất trên hàng hóa giống nhau.' },
+      { text: 'Người bán hoặc cơ sở kinh doanh mới là chủ thể kê khai, nộp thuế theo quy định nên hộ A và hộ B không thể là người chịu gánh nặng kinh tế. Vì thế, việc đưa khoản thuế được chuyển vào giá hàng hóa vào phép so sánh với thu nhập của hai hộ là không phù hợp.', rationale: 'Không chính xác. Nghĩa vụ kê khai, nộp thuế theo pháp luật và gánh nặng kinh tế là hai khía cạnh khác nhau. Trong giả định đề bài, toàn bộ thuế được chuyển vào giá bán nên người mua thực tế chịu khoản tăng thêm khi thanh toán. Vì thế vẫn có thể so sánh khoản thuế được phản ánh trong giá với thu nhập của từng hộ, dù người bán là chủ thể kê khai và nộp thuế.' }
+    ], answer: 1,
+    explanation: 'Câu hỏi yêu cầu tách ba đại lượng thường bị nhầm lẫn: thuế suất áp trên giá trị hàng hóa, số tiền thuế tuyệt đối và tỷ trọng gánh nặng so với thu nhập. A trả 0,9 triệu đồng trên thu nhập 12 triệu, tức 7,5%; B trả 2,4 triệu đồng trên thu nhập 48 triệu, tức 5%. Do đó B trả số tiền lớn hơn nhưng A chịu tỷ lệ gánh nặng cao hơn trong mô hình đã cho. Đây là lý do một sắc thuế gián thu có thể tạo gánh nặng tương đối lớn hơn cho hộ thu nhập thấp. Tuy nhiên, không thể từ một sắc thuế và hai hộ giả định suy ra mọi thuế gián thu đều bất công hoặc thuế trực thu luôn công bằng hơn. Muốn đánh giá toàn bộ chính sách cần xem xét thêm thuế trực thu, các khoản miễn giảm, cơ cấu tiêu dùng, khả năng chuyển thuế và cách sử dụng nguồn thu ngân sách.'
+  },
+  {
+    id: 'mc-10', kind: 'mc', tag: 'ĐIỀU TIẾT TIÊU DÙNG · PHẢN ỨNG THỊ TRƯỜNG',
+    label: 'CÂU HỎI 10 · SUY LUẬN TỪ KẾT QUẢ',
+    q: 'Giả sử Nhà nước tăng thuế đối với một mặt hàng gây tác động tiêu cực đến sức khỏe cộng đồng. Tuy nhiên, sau khi tăng thuế, lượng tiêu thụ mặt hàng này không giảm đáng kể. Kết luận nào hợp lý nhất?',
+    options: [
+      { text: 'Chính sách thuế hoàn toàn không có giá trị vì không đạt được kết quả mong muốn.', rationale: 'Không chính xác. Đây là kết luận tuyệt đối hóa từ một kết quả. Thuế vẫn có thể tạo nguồn thu hoặc tạo ra tác động nhất định dù lượng tiêu thụ chưa giảm rõ rệt. Muốn đánh giá toàn diện phải xem nhiều mục tiêu và nhiều chỉ số khác nhau.' },
+      { text: 'Thuế chỉ có tác dụng tạo nguồn thu, không có tác dụng điều tiết tiêu dùng.', rationale: 'Không chính xác. Việc lượng tiêu thụ không giảm đáng kể trong một trường hợp không chứng minh thuế không có chức năng điều tiết. Nó chỉ cho thấy hiệu quả điều tiết thực tế có thể bị giới hạn bởi các yếu tố khác.' },
+      { text: 'Thuế vẫn có thể thực hiện chức năng tạo nguồn thu, nhưng hiệu quả điều tiết hành vi tiêu dùng còn phụ thuộc vào nhiều yếu tố khác.', rationale: 'Chính xác. Thuế có thể đồng thời tạo nguồn thu và điều tiết tiêu dùng. Mức độ thay đổi hành vi phụ thuộc vào độ nhạy cảm của người mua với giá, khả năng thay thế mặt hàng, thói quen, mức độ phụ thuộc và tỷ trọng khoản tăng giá trong ngân sách của họ.' },
+      { text: 'Nhà nước bắt buộc phải xóa bỏ hoàn toàn loại thuế này.', rationale: 'Không chính xác. Việc lượng tiêu thụ chưa giảm nhiều không tự động dẫn đến kết luận phải xóa bỏ thuế. Nhà nước cần đánh giá mục tiêu, tác động, dữ liệu và có thể cân nhắc điều chỉnh phối hợp với biện pháp khác thay vì đưa ra kết luận duy nhất.' }
+    ], answer: 2,
+    explanation: 'Một chính sách có thể có nhiều mục tiêu, và kết quả thực tế không chỉ phụ thuộc vào mức thuế. Nếu người tiêu dùng ít nhạy cảm với giá, khó tìm hàng hóa thay thế hoặc vẫn có nhu cầu mạnh, lượng mua có thể không giảm nhiều. Vì vậy, phải phân biệt chức năng tạo nguồn thu với hiệu quả điều tiết hành vi: chức năng điều tiết vẫn tồn tại, nhưng mức độ đạt được mục tiêu còn phụ thuộc hoàn cảnh.'
+  }
+];
+
+const TOTAL_QUESTIONS = 10;
+const TF_POINTS_PER_STATEMENT = 0.25;
+const $ = id => document.getElementById(id);
+const state = {
+  index: 0,
+  score: 0,
+  tfCorrect: 0,
+  mcCorrect: 0,
+  answers: [],
+  locked: false
+};
+
+/* Escape content before inserting question text or explanations into HTML. */
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[ch]);
+}
+/* Keep quarter-point scores readable and avoid floating-point noise such as 0.749999. */
+function formatScore(value) {
+  const normalized = Number(value.toFixed(2));
+  return normalized.toLocaleString('vi-VN', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+}
+/* Switch between the welcome, rules, quiz and result screens without reloading the page. */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.classList.toggle('active', screen.id === id);
+  });
+}
+function updateScore() {
+  $('scoreNow').textContent = `${formatScore(state.score)} / 10`;
+}
+/* Progress counts completed questions, not partial clicks inside a four-statement TF question. */
+function updateProgress() {
+  const done = state.answers.reduce((count, answer, index) => {
+    if (!answer) return count;
+    const q = QUESTIONS[index];
+    const completed = q.kind === 'tf' ? answer.items.every(Boolean) : true;
+    return count + (completed ? 1 : 0);
+  }, 0);
+  const percent = done / TOTAL_QUESTIONS * 100;
+  $('progressBar').style.width = `${percent}%`;
+  $('progressTrack').setAttribute('aria-valuenow', String(done));
+  $('subProgress').textContent = `Đã hoàn thành ${done}/${TOTAL_QUESTIONS} câu`;
+}
+/* Reset all session state so a restart begins with a clean score and empty answer history. */
+function startQuiz() {
+  state.index = 0;
+  state.score = 0;
+  state.tfCorrect = 0;
+  state.mcCorrect = 0;
+  state.answers = Array(TOTAL_QUESTIONS).fill(null);
+  state.locked = false;
+  updateScore();
+  updateProgress();
+  showScreen('quiz');
+  renderQuestion();
+}
+/* Render one question according to its data type; the question bank remains separate from UI logic. */
+function renderQuestion() {
+  const q = QUESTIONS[state.index];
+  state.locked = false;
+  $('topicTag').textContent = q.kind === 'tf' ? 'ĐÚNG – SAI · TÌNH HUỐNG' : 'NHIỀU LỰA CHỌN · PHÂN TÍCH';
+  $('qCount').textContent = `CÂU ${String(state.index + 1).padStart(2, '0')} / ${TOTAL_QUESTIONS}`;
+  $('typeHint').textContent = q.kind === 'tf' ? `PHẦN I · CÂU ${state.index + 1}/5 · ĐÚNG – SAI` : `PHẦN II · CÂU ${state.index - 4}/5 · NHIỀU LỰA CHỌN`;
+  $('questionLabel').textContent = q.label;
+  $('questionText').textContent = q.q;
+  $('instructionText').textContent = q.kind === 'tf'
+    ? 'Đánh giá riêng từng nhận định A–D. Sau mỗi lần chọn, hệ thống sẽ hiện đáp án chuẩn và giải thích cho chính nhận định đó.'
+    : 'Chọn một phương án chính xác nhất. Sau khi trả lời, hãy đọc phần phân tích cả bốn phương án để hiểu vì sao các lựa chọn còn lại chưa phù hợp.';
+  $('feedbackArea').innerHTML = '';
+  const body = $('questionBody');
+  body.innerHTML = '';
+  if (q.kind === 'tf') renderTrueFalse(q, body);
+  else renderMultipleChoice(q, body);
+  updateScore();
+  updateProgress();
+}
+/* Build four independent A-D rows; the shared delegated click listener handles all of them. */
+function renderTrueFalse(q, container) {
+  q.statements.forEach((statement, statementIndex) => {
+    const row = document.createElement('article');
+    row.className = 'tf-item';
+    row.dataset.statement = String(statementIndex);
+    row.innerHTML = `
+      <div class="tf-copy">
+        <span class="letter" aria-hidden="true">${'ABCD'[statementIndex]}</span>
+        <p class="tf-text">${escapeHTML(statement.text)}</p>
+      </div>
+      <div class="tf-actions" role="group" aria-label="Đánh giá nhận định ${'ABCD'[statementIndex]}">
+        <button type="button" class="choice-btn true" data-value="true">✓ ĐÚNG</button>
+        <button type="button" class="choice-btn false" data-value="false">✕ SAI</button>
+      </div>
+      <div class="statement-feedback" aria-live="polite" hidden></div>`;
+    container.appendChild(row);
+  });
+}
+/* Score each statement once, lock its two buttons, then show the answer and its own explanation. */
+function handleTrueFalseClick(event) {
+  const button = event.target.closest('button[data-value]');
+  if (!button || state.locked) return;
+  const row = button.closest('.tf-item');
+  if (!row || row.dataset.answered === 'true') return;
+  const q = QUESTIONS[state.index];
+  const statementIndex = Number(row.dataset.statement);
+  const statement = q.statements[statementIndex];
+  const chosen = button.dataset.value === 'true';
+  const correct = chosen === statement.answer;
+  const answerRecord = state.answers[state.index] || {kind: 'tf', items: Array(4).fill(null), earned: 0};
+  answerRecord.items[statementIndex] = {chosen, correct, expected: statement.answer};
+  if (correct) {
+    answerRecord.earned += TF_POINTS_PER_STATEMENT;
+    state.score += TF_POINTS_PER_STATEMENT;
+    state.tfCorrect += 1;
+  }
+  state.answers[state.index] = answerRecord;
+  row.dataset.answered = 'true';
+  row.classList.add(correct ? 'answered-correct' : 'answered-wrong');
+  row.querySelectorAll('button').forEach(optionButton => {
+    optionButton.disabled = true;
+    if (optionButton === button) {
+      optionButton.classList.add('selected', correct ? 'correct-pick' : 'wrong-pick');
+    }
+    if (optionButton.dataset.value === String(statement.answer)) {
+      optionButton.classList.add('selected');
+      if (correct) optionButton.classList.add('correct-pick');
+    }
+  });
+  const feedback = row.querySelector('.statement-feedback');
+  feedback.hidden = false;
+  feedback.classList.add(correct ? 'good' : 'bad');
+  feedback.innerHTML = `<strong>${correct ? '✓ BẠN ĐÃ ĐÁNH GIÁ ĐÚNG' : '✕ CHƯA CHÍNH XÁC'} · ĐÁP ÁN: ${statement.answer ? 'ĐÚNG' : 'SAI'}</strong>${escapeHTML(statement.why)}`;
+  updateScore();
+  updateProgress();
+  const completed = answerRecord.items.every(Boolean);
+  if (completed) showTrueFalseSummary(q, answerRecord);
+}
+/* Show the per-question score only after all four statements have been classified. */
+function showTrueFalseSummary(q, answerRecord) {
+  if ($('tfSummary')) return;
+  const summary = document.createElement('section');
+  summary.id = 'tfSummary';
+  summary.className = 'tf-summary';
+  const correctCount = answerRecord.items.filter(item => item.correct).length;
+  summary.innerHTML = `<h3>ĐÃ HOÀN THÀNH 4/4 NHẬN ĐỊNH</h3>
+    <p>Bạn làm đúng <strong>${correctCount}/4</strong> nhận định, nhận được <strong>${formatScore(answerRecord.earned)}/1 điểm</strong> ở câu này. Hãy đối chiếu lại từng lời giải ở trên trước khi chuyển tiếp.</p>
+    <div class="action-row"><span></span><button class="next" id="nextQuestion" type="button">${state.index === TOTAL_QUESTIONS - 1 ? 'XEM KẾT QUẢ →' : 'CÂU TIẾP THEO →'}</button></div>`;
+  $('questionBody').appendChild(summary);
+  $('nextQuestion').addEventListener('click', nextQuestion, {once: true});
+}
+/* Render four MC options in source order so the answer key and A-D rationales stay aligned. */
+function renderMultipleChoice(q, container) {
+  const options = document.createElement('div');
+  options.className = 'mc-options';
+  q.options.forEach((option, optionIndex) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mc-option';
+    button.dataset.option = String(optionIndex);
+    button.innerHTML = `<span class="letter" aria-hidden="true">${'ABCD'[optionIndex]}</span><span>${escapeHTML(option.text)}</span>`;
+    options.appendChild(button);
+  });
+  container.appendChild(options);
+  options.addEventListener('click', event => {
+    const button = event.target.closest('button[data-option]');
+    if (!button || state.locked) return;
+    answerMultipleChoice(q, Number(button.dataset.option), options);
+  }, {once: true});
+}
+/* Lock the MC question, award one point at most, and explain all four options immediately. */
+function answerMultipleChoice(q, selectedIndex, optionsContainer) {
+  if (state.locked) return;
+  state.locked = true;
+  const correct = selectedIndex === q.answer;
+  const earned = correct ? 1 : 0;
+  state.score += earned;
+  if (correct) state.mcCorrect += 1;
+  state.answers[state.index] = {kind: 'mc', selected: selectedIndex, correct, earned};
+  optionsContainer.querySelectorAll('.mc-option').forEach((button, index) => {
+    button.disabled = true;
+    if (index === q.answer) button.classList.add('correct-option');
+    else if (index === selectedIndex) button.classList.add('wrong-option');
+    else button.classList.add('muted-option');
+  });
+  updateScore();
+  updateProgress();
+  const panel = document.createElement('section');
+  panel.className = `feedback ${correct ? 'good' : 'bad'}`;
+  panel.innerHTML = `
+    <h3>${correct ? '✓ CHÍNH XÁC!' : '✕ CHƯA CHÍNH XÁC!'}</h3>
+    <p class="answer-key">ĐÁP ÁN ĐÚNG: ${'ABCD'[q.answer]} · ${earned ? '+1 ĐIỂM' : '+0 ĐIỂM'}</p>
+    <p class="feedback-intro">${escapeHTML(q.explanation)}</p>
+    <div class="rationale-list">${q.options.map((option, index) => `
+      <div class="rationale ${index === q.answer ? 'correct-rationale' : ''}">
+        <span class="letter">${'ABCD'[index]}</span>
+        <div><strong>${index === q.answer ? 'Phương án đúng. ' : 'Phương án chưa phù hợp. '}</strong>${escapeHTML(option.rationale)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="action-row"><span></span><button class="next" id="nextQuestion" type="button">${state.index === TOTAL_QUESTIONS - 1 ? 'XEM KẾT QUẢ →' : 'CÂU TIẾP THEO →'}</button></div>`;
+  $('feedbackArea').appendChild(panel);
+  $('nextQuestion').addEventListener('click', nextQuestion, {once: true});
+}
+/* Navigation is allowed only after the current question has a complete answer record. */
+function nextQuestion() {
+  if (!state.answers[state.index]) return;
+  if (state.index < TOTAL_QUESTIONS - 1) {
+    state.index += 1;
+    state.locked = false;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+/* Aggregate the 20 TF statements and 5 MC questions, then build the ten-question review. */
+function finishQuiz() {
+  showScreen('result');
+  $('finalScore').textContent = `${formatScore(state.score)}/10`;
+  $('tfCorrect').textContent = `${state.tfCorrect}/20`;
+  $('mcCorrect').textContent = `${state.mcCorrect}/5`;
+  const title = state.score >= 9 ? 'Xuất sắc!' : state.score >= 7 ? 'Rất tốt!' : state.score >= 5 ? 'Bạn đã có nền tảng khá!' : 'Hãy ôn lại từng lời giải!';
+  $('resultCopy').textContent = `${title} Bạn đạt ${formatScore(state.score)} trên 10 điểm. Phần đúng – sai có ${state.tfCorrect}/20 nhận định chính xác; phần nhiều lựa chọn có ${state.mcCorrect}/5 câu đúng. Hãy xem bảng tổng kết để biết nội dung nào cần củng cố.`;
+  $('reviewList').innerHTML = QUESTIONS.map((q, index) => {
+    const answer = state.answers[index];
+    const correct = q.kind === 'tf' ? answer.items.every(item => item && item.correct) : answer.correct;
+    const summary = q.kind === 'tf'
+      ? `Đúng ${answer.items.filter(item => item.correct).length}/4 nhận định · đáp án chuẩn ${q.statements.map((item, i) => `${'ABCD'[i]}:${item.answer ? 'Đ' : 'S'}`).join(' / ')}`
+      : `Bạn chọn ${'ABCD'[answer.selected]} · đáp án đúng ${'ABCD'[q.answer]}`;
+    return `<div class="review-item ${correct ? '' : 'wrong'}"><strong>${correct ? '✓ ĐẠT' : '✕ ÔN LẠI'}</strong><span>Câu ${String(index + 1).padStart(2, '0')} · ${escapeHTML(q.tag)}</span><small>${escapeHTML(summary)} · ${formatScore(answer.earned)}/1đ</small></div>`;
+  }).join('');
+  updateProgress();
+}
+
+// Startup validation: prevents a silent mismatch between the configured exam and UI.
+/* Fail early if the authored question bank no longer matches the ten-question scoring contract. */
+function validateQuestionBank() {
+  if (QUESTIONS.length !== TOTAL_QUESTIONS) throw new Error(`Bộ đề phải có đúng ${TOTAL_QUESTIONS} câu.`);
+  const trueFalseCount = QUESTIONS.filter(q => q.kind === 'tf').length;
+  const multipleChoiceCount = QUESTIONS.filter(q => q.kind === 'mc').length;
+  if (trueFalseCount !== 5 || multipleChoiceCount !== 5) throw new Error('Bộ đề phải gồm đúng 5 câu đúng–sai và 5 câu nhiều lựa chọn.');
+  QUESTIONS.forEach((q, index) => {
+    if (q.kind === 'tf' && (!Array.isArray(q.statements) || q.statements.length !== 4)) throw new Error(`Câu ${index + 1}: câu đúng–sai phải có 4 nhận định.`);
+    if (q.kind === 'mc' && (!Array.isArray(q.options) || q.options.length !== 4 || !Number.isInteger(q.answer) || q.answer < 0 || q.answer > 3)) throw new Error(`Câu ${index + 1}: dữ liệu trắc nghiệm nhiều lựa chọn không hợp lệ.`);
+  });
+}
+
+validateQuestionBank();
+$('questionBody').addEventListener('click', handleTrueFalseClick);
+$('goRules').addEventListener('click', () => showScreen('rules'));
+$('startQuiz').addEventListener('click', startQuiz);
+$('restart').addEventListener('click', startQuiz);
+
+/* Keep the intro loader visible for five seconds, then enable the quiz interface. */
+function startInitialLoader() {
+  const loader = $('appLoader');
+  const appRoot = $('appRoot');
+  const fill = $('loaderFill');
+  const percent = $('loaderPercent');
+  const track = $('loaderTrack');
+  const status = $('loaderStatus');
+  const duration = 5000;
+  const startedAt = Date.now();
+  const timer = window.setInterval(() => {
+    const ratio = Math.min(1, (Date.now() - startedAt) / duration);
+    const value = Math.round(ratio * 100);
+    fill.style.width = `${value}%`;
+    percent.textContent = `${value}%`;
+    track.setAttribute('aria-valuenow', String(value));
+    if (ratio >= 1) {
+      window.clearInterval(timer);
+      status.textContent = 'SẴN SÀNG';
+      appRoot.inert = false;
+      appRoot.removeAttribute('aria-hidden');
+      loader.classList.add('is-hidden');
+      window.setTimeout(() => loader.remove(), 500);
+    }
+  }, 80);
+}
+startInitialLoader();
+</script>
+</body>
+</html>
